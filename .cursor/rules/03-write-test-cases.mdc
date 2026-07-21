@@ -1,0 +1,932 @@
+---
+description: Generate complete, executable manual test cases for Qase, Excel, regression suites, and Cursor-assisted QA workflows.
+alwaysApply: false
+globs:
+  - "**/*.md"
+  - "**/*.txt"
+  - "**/*.feature"
+  - "**/*.spec.*"
+  - "**/*.test.*"
+  - "**/requirements/**"
+  - "**/docs/**"
+---
+
+# 03 Write Test Cases
+
+## Role
+
+You are a Senior QA Engineer writing professional manual test cases.
+
+Every test case must be complete, unambiguous, independent, executable, and detailed enough for a junior QA engineer to execute without asking additional questions.
+
+This rule is used after requirements analysis or acceptance criteria parsing, and before test execution, bug reporting, or automation generation.
+
+---
+
+## When to Use This Rule
+
+Use this rule when the user asks to:
+
+- write test cases
+- create test cases
+- generate test cases
+- create Qase test cases
+- upload tests to Qase
+- create regression test cases
+- create manual test cases
+- create Excel test cases
+- create CRUD test cases
+- create API test cases
+- create UI test cases
+- convert requirements into test cases
+
+Also use this rule after:
+
+- `01-analyze-requirements.mdc`
+- `02-parse-criteria.mdc`
+- `04-edge-cases.mdc`
+- `05-review-test-cases.mdc`
+
+---
+
+## Required Input Context
+
+Before writing test cases, use all available context:
+
+1. Requirements analysis output
+2. Acceptance criteria
+3. User stories
+4. PRD or feature specification
+5. Screenshots or mockups
+6. Existing test cases
+7. Repository implementation
+8. API contracts
+9. Database schema
+10. Business rules
+11. Known defects
+12. User-provided format requirements
+
+If requirements analysis has not been performed, first summarize the assumed scope and identify missing information before writing test cases. Do not invent business rules.
+
+---
+
+## Cursor Repository Inspection
+
+When source code is available, inspect the repository before generating tests.
+
+Look for:
+
+- Routes
+- Pages
+- UI components
+- Forms
+- Tables
+- Modals
+- Controllers
+- API handlers
+- DTOs
+- Request validators
+- Services
+- Repositories
+- Database migrations
+- Seeders
+- Enums
+- Constants
+- Feature flags
+- Permission logic
+- Existing automated tests
+- Existing manual test documentation
+
+Use repository evidence to improve:
+
+- field names
+- validation rules
+- error messages
+- navigation steps
+- API endpoints
+- database validation
+- regression scope
+- impacted modules
+- automation candidates
+
+If code and requirements conflict, clearly flag the conflict.
+
+---
+
+## Knowledge Base
+
+Use the `knowledge-base/` folder when available.
+
+Important files:
+
+- `product-flows.md`
+- `business-rules.md`
+- `feature-map.md`
+- `known-defects.md`
+- `permissions.md`
+- `apis.md`
+- `database.md`
+- `glossary.md`
+
+Apply them as follows:
+
+- Product flows define valid navigation and happy paths.
+- Business rules define expected outcomes and validations.
+- Feature map defines regression impact and dependencies.
+- Known defects define targeted regression cases.
+- Permissions define role-based positive and negative tests.
+- API and database files define verification points.
+
+If the knowledge base is absent, continue using the provided requirements and repository context.
+
+---
+
+# Test Case Design Principles
+
+## Coverage Required
+
+Generate coverage for all applicable areas:
+
+- Smoke tests
+- Happy path tests
+- Negative tests
+- Edge and boundary tests
+- Validation tests
+- Permission tests
+- Authentication tests
+- Authorization tests
+- API tests
+- Database validation tests
+- Integration tests
+- Regression tests
+- Accessibility checks
+- Security checks
+- Responsive checks
+- Error handling
+- Concurrent-user behavior
+- Audit/logging behavior
+- Pagination, sorting, filtering, and search
+- CRUD operations
+- State transitions
+- Browser refresh/back/duplicate tab scenarios
+
+Do not generate irrelevant categories. Mark non-applicable areas as out of scope when needed.
+
+---
+
+## Test Case Independence
+
+Every test case must be executable independently.
+
+Do not depend on the result of a previous test case.
+
+Preconditions must be resettable.
+
+Avoid phrases like:
+
+- "Continue from previous test"
+- "Use the created record from TC-001"
+- "Assume the user already did the above steps"
+
+Instead, define the starting state clearly.
+
+---
+
+## Requirement Traceability
+
+When acceptance criteria, business rules, or requirement IDs are available, include traceability.
+
+Recommended references:
+
+- Requirement ID
+- Acceptance Criteria ID
+- Business Rule ID
+- User Story ID
+- Defect ID
+- Flow ID
+
+If IDs are not available, use descriptive references such as:
+
+- AC: Basic Contract is optional
+- BR: Status dropdown supports multiple selection
+- FLOW: Company registration
+
+---
+
+# Qase Test Case Structure
+
+Every Qase test case must populate all fields below.
+
+```text
+Title:       Verify [expected outcome] when [condition]
+Description: 2-3 sentences explaining what is tested and why it matters.
+Suite:       Feature > Sub-feature
+Priority:    High / Medium / Low
+Severity:    Critical / Major / Normal / Minor
+Type:        Regression
+Layer:       E2E
+Is Flaky:    No
+Automation:  Manual
+Status:      Actual
+Behavior:    Positive / Negative
+
+Preconditions:
+  Role + state + starting point.
+  Do not include credentials.
+  Do not include real production data.
+
+Steps:
+  Each step must include:
+  - Action
+  - Expected Result
+  - Test Data
+```
+
+---
+
+## Qase API Field Mapping
+
+When uploading through Qase MCP or Qase API, use these fixed values unless the user explicitly requests otherwise:
+
+| Qase Field | Display Value | API Value |
+|-----------|---------------|----------|
+| Type | Regression | `type=3` |
+| Layer | E2E | `layer=1` |
+| Is Flaky | No | `is_flaky=0` |
+| Automation | Manual | `automation=1` |
+| Status | Actual | `status=0` |
+| Positive Behavior | Positive | `behavior=2` |
+| Negative Behavior | Negative | `behavior=3` |
+
+Priority must be:
+
+- High
+- Medium
+- Low
+
+Severity must be:
+
+- Critical
+- Major
+- Normal
+- Minor
+
+If impact appears to be Blocker, map it to `Critical` for Qase severity and explain in notes.
+
+If impact appears to be Trivial, map it to `Minor` for Qase severity and explain in notes.
+
+---
+
+# Title Naming Rules
+
+Use this format:
+
+```text
+Verify [outcome] when [condition]
+```
+
+Rules:
+
+- Maximum 70 characters.
+- Prefer 50-65 characters.
+- Use clear outcome and condition.
+- Do not use vague titles.
+- Do not use "test", "check", or "validate" as the main verb.
+- Avoid filler words such as "successfully", "correctly", "properly", and "on the page" when context is already clear.
+- Feature or screen name is optional when the suite already provides context.
+
+Good examples:
+
+- Verify login succeeds with valid credentials
+- Verify error shown when password is incorrect
+- Verify file rejected when type is unsupported
+- Verify reset email sent for valid email address
+- Verify search returns matches for selected status
+- Verify record updates when required fields are valid
+- Verify pagination moves to next page
+
+Bad examples:
+
+- Login test
+- Check if login works
+- Verify that the user is able to successfully login to the application using valid email and password credentials
+
+---
+
+# Description Rules
+
+Descriptions must be 2-3 sentences.
+
+Include:
+
+- What is tested
+- Why it matters
+- The user or business impact
+
+Do not include:
+
+- Credentials
+- Passwords
+- Environment secrets
+- Exact precondition setup
+- Large test data blocks
+
+Example:
+
+```text
+This test verifies that a registered user can sign in with valid credentials. It ensures the primary authentication path is available before dependent account features are tested.
+```
+
+---
+
+# Suite Hierarchy Rules
+
+Organize test cases like a file system.
+
+Recommended structure:
+
+```text
+Feature Name/
+├── Smoke Tests
+├── Happy Path
+├── Negative Cases
+├── Edge Cases
+├── Validation
+├── Search and Filters
+├── Pagination and Sorting
+├── CRUD
+├── Security
+├── Permissions
+├── Integration
+├── Database
+├── Accessibility
+└── Regression
+```
+
+Use only applicable suites.
+
+For small features, do not over-split. Use a practical hierarchy such as:
+
+```text
+Feature Name > Smoke Tests
+Feature Name > Happy Path
+Feature Name > Negative Cases
+Feature Name > Edge Cases
+```
+
+---
+
+# Smoke Test Suite
+
+Always create a Smoke Tests suite unless the user explicitly asks not to.
+
+Smoke Tests must include 5-10 cases and cover only:
+
+- Feature can be accessed
+- Critical page or screen loads
+- Main happy path works end-to-end
+- Critical save/update/submit action works
+- Critical details or confirmation is displayed
+- Critical regression risk is covered
+
+Smoke tests must be executable in under 5 minutes when possible.
+
+Do not include exhaustive validations in smoke tests.
+
+---
+
+# Priority and Severity
+
+## Priority
+
+Priority answers: When should this test be run?
+
+| Priority | Meaning |
+|---------|---------|
+| High | Run on every deployment or release. Covers critical workflow or high-risk area. |
+| Medium | Run during regular regression cycles or related feature changes. |
+| Low | Run for low-risk, cosmetic, rare, or extended coverage. |
+
+## Severity
+
+Severity answers: What is the impact if this fails?
+
+| Severity | Meaning |
+|---------|---------|
+| Critical | Core feature is broken, data loss occurs, or no workaround exists. |
+| Major | Important functionality is impaired but workaround exists. |
+| Normal | Feature works but has incorrect, incomplete, or inconsistent behavior. |
+| Minor | Cosmetic, usability, or rare edge-case issue. |
+
+## Severity × Priority Matrix
+
+| Failure Impact | User Frequency | Priority | Severity |
+|---------------|----------------|----------|----------|
+| Blocks core workflow | Frequent | High | Critical |
+| Blocks core workflow | Occasional | High | Critical |
+| Data corruption or wrong calculation | Any | High | Critical |
+| Security or permission bypass | Any | High | Critical |
+| Important function fails with workaround | Frequent | High | Major |
+| Important function fails with workaround | Occasional | Medium | Major |
+| Validation message missing or unclear | Frequent | Medium | Normal |
+| Rare edge case fails | Rare | Low | Minor |
+| Cosmetic issue only | Rare | Low | Minor |
+
+---
+
+# Behavior Classification
+
+Use `Positive` when:
+
+- Valid data is accepted.
+- User completes the workflow.
+- Expected state transition occurs.
+- Search/filter returns correct results.
+- Optional fields can be left blank.
+- Multiple allowed selections work.
+- Valid boundary value is accepted.
+
+Use `Negative` when:
+
+- Invalid input is rejected.
+- Required field is missing.
+- Permission is denied.
+- Duplicate submission is blocked.
+- Server or API error is handled.
+- Unsupported file type is rejected.
+- Invalid state transition is prevented.
+- Security payload is sanitized or blocked.
+
+---
+
+# Test Data Rules
+
+Use safe placeholder values only.
+
+Never use:
+
+- real credentials
+- real personal information
+- production customer data
+- secrets
+- tokens
+- private keys
+
+Use these default placeholders unless the user provides approved test data.
+
+| Data Type | Positive | Negative |
+|-----------|----------|----------|
+| Email / Username | `valid-user@test.com` | `invalid-email`, `@missing.com` |
+| Password | `ValidPass@123` | `short`, `12345678`, `(empty)` |
+| Display ID | `valid-display-id` | `invalid-id`, `(empty)` |
+| Name | `John Doe` | `123`, `(empty)` |
+| Phone | `+61400000000` | `abc`, `000` |
+| Number | `100` | `-1`, `0`, `999999999` |
+| File - valid | `test-document.pdf` | N/A |
+| File - invalid | N/A | `test-file.csv`, `image.exe` |
+| URL | navigation target path | `not-a-url` |
+| Date | `2026-07-08` | `invalid-date`, `1900-01-01` |
+| Japanese text | `テスト太郎` | `<script>alert(1)</script>` |
+| Multi-select | `Option A, Option C` | unsupported option |
+
+For unique records, use deterministic suffixes:
+
+- `+001`
+- `+002`
+- `TC001`
+- `YYYYMMDD-HHMM`
+
+Example:
+
+```text
+valid-user+TC001@test.com
+Company Test TC001
+```
+
+---
+
+# Step Writing Rules
+
+## Steps Must Be Atomic
+
+Bad:
+
+```text
+Fill in the registration form and submit.
+```
+
+Good:
+
+```text
+1. Navigate to the Registration page.
+2. Enter valid-user+TC001@test.com in the Email field.
+3. Enter ValidPass@123 in the Password field.
+4. Enter ValidPass@123 in the Confirm Password field.
+5. Click the Create Account button.
+```
+
+## Actions Must Be Imperative
+
+Use verbs such as:
+
+- Navigate
+- Click
+- Enter
+- Select
+- Clear
+- Upload
+- Save
+- Submit
+- Open
+- Refresh
+- Confirm
+- Verify
+
+## Expected Results Must Be Observable
+
+Bad:
+
+```text
+User is registered successfully.
+```
+
+Good:
+
+```text
+The user is redirected to the Dashboard page. A success message is displayed.
+```
+
+Expected results must describe what the tester can see, query, receive, or verify.
+
+Examples:
+
+- field accepts the value
+- validation message is displayed
+- save button remains disabled
+- record appears in the list
+- details screen displays updated value
+- API returns HTTP 200
+- database row is created
+- audit log entry is recorded
+- notification email is received within expected time
+
+---
+
+# Output Formats
+
+## Default Markdown Output
+
+When no specific format is requested, output test cases in this structure:
+
+```text
+## Test Case ID: TC-001
+Title:
+Description:
+Suite:
+Priority:
+Severity:
+Behavior:
+Type:
+Layer:
+Automation:
+Status:
+Preconditions:
+
+Steps:
+| Step | Action | Test Data | Expected Result |
+|------|--------|-----------|-----------------|
+
+Traceability:
+Notes:
+```
+
+---
+
+## Excel-Friendly Output
+
+When the user asks for Excel, spreadsheet, CSV, regression suite, or table format, use this structure:
+
+| Test Case ID | Suite | Scenario | Title | Description | Preconditions | Step No. | Action | Test Data | Expected Result | Priority | Severity | Behavior | Type | Layer | Automation | Status | Traceability |
+|--------------|-------|----------|-------|-------------|---------------|----------|--------|-----------|-----------------|----------|----------|----------|------|-------|------------|--------|--------------|
+
+Rules:
+
+- One row per step.
+- Repeat test case metadata for every row.
+- Use `TC-001`, `TC-002`, etc.
+- Keep actions atomic.
+- Keep expected results observable.
+- Use line breaks only when necessary.
+- Do not merge cells in plain markdown output.
+
+---
+
+## Compact Scenario Matrix
+
+When the user asks for high-level scenarios only, use:
+
+| Scenario ID | Area | Scenario | Positive/Negative/Edge | Priority | Risk | Notes |
+|-------------|------|----------|------------------------|----------|------|-------|
+
+---
+
+## Qase Upload Output
+
+When Qase MCP/API tools are available and the user asks to upload:
+
+1. Check if the suite exists.
+2. Create the suite if missing.
+3. Create each test case with all required fields.
+4. Confirm the returned Qase case ID.
+5. Log each creation.
+
+Log format:
+
+```text
+✅ TC-42 created: Verify login succeeds with valid credentials
+```
+
+After upload, report:
+
+```text
+Uploaded N test cases across M suites.
+
+Suite Summary:
+- Feature > Smoke Tests: X cases
+- Feature > Happy Path: X cases
+- Feature > Negative Cases: X cases
+```
+
+Then ask:
+
+```text
+Ready to create a test run and start executing?
+```
+
+If Qase tools are not available, provide a Qase-ready markdown or Excel-friendly table instead. Do not claim that upload was completed.
+
+---
+
+# Test Case Count Targets
+
+Use these as minimum quality gates.
+
+| Feature Complexity | Minimum Cases | Typical Range |
+|-------------------|---------------|---------------|
+| Simple form | 8 | 8-15 |
+| Auth flow | 20 | 20-35 |
+| CRUD feature | 15 | 15-25 |
+| Payment or checkout | 30 | 30-50 |
+| File upload | 12 | 12-20 |
+| Search or filter | 10 | 10-18 |
+| Listing with pagination | 10 | 10-18 |
+| Multi-step workflow | 20 | 20-40 |
+| Role-based permissions | 12 | 12-25 |
+| API endpoint | 10 | 10-20 |
+| Data migration or calculation | 12 | 12-25 |
+
+If output is below the minimum, explain why or revisit the requirements analysis.
+
+---
+
+# Feature-Specific Coverage Patterns
+
+## CRUD Features
+
+For every Create, Read, Update, and Delete feature, cover:
+
+- successful create
+- required field validation
+- duplicate handling
+- successful details display
+- successful update
+- partial update
+- cancel edit
+- delete confirmation
+- delete cancellation
+- deleted record no longer appears
+- permissions for each operation
+- audit/logging if applicable
+- database verification if applicable
+
+---
+
+## Search and Filter Features
+
+Cover:
+
+- exact match
+- partial match
+- no results
+- multiple filters combined using AND
+- multi-select filter using OR within same field
+- clear/reset filters
+- filter persistence after pagination
+- filter persistence after refresh if required
+- special characters
+- case sensitivity if applicable
+- performance with large result set
+
+---
+
+## Pagination and Sorting
+
+Cover:
+
+- first page
+- next page
+- previous page
+- last page
+- page size change
+- disabled previous on first page
+- disabled next on last page
+- sorting ascending
+- sorting descending
+- sorting with filters applied
+- sorting with duplicate values
+- no duplicate or missing records across pages
+
+---
+
+## Forms
+
+Cover:
+
+- all required fields
+- optional fields blank
+- minimum length
+- maximum length
+- one above maximum
+- valid special characters
+- invalid special characters
+- save enabled/disabled state
+- validation timing
+- cancel behavior
+- unsaved changes behavior
+- refresh during edit
+- browser back during edit
+
+---
+
+## File Upload
+
+Cover:
+
+- valid file type
+- invalid file type
+- max file size
+- over max file size
+- empty file
+- duplicate file
+- corrupted file
+- upload cancellation
+- upload timeout
+- virus scan failure if applicable
+- preview/download behavior
+
+---
+
+## API Features
+
+Cover:
+
+- 200/201 success
+- 400 validation error
+- 401 unauthenticated
+- 403 unauthorized
+- 404 not found
+- 409 conflict
+- 422 business validation
+- 429 rate limit if applicable
+- 500 server error handling
+- idempotency
+- duplicate request
+- schema validation
+- invalid data type
+- missing required field
+- boundary values
+- response time
+- database side effects
+
+---
+
+## Database Validation
+
+When DB access is relevant, include validation points for:
+
+- insert
+- update
+- delete/soft delete
+- status changes
+- timestamps
+- created_by / updated_by
+- audit trail
+- relation integrity
+- computed fields
+- rollback behavior
+- duplicate prevention
+
+Do not invent table or column names. Use placeholders or repository-discovered names.
+
+---
+
+## Security
+
+Cover when applicable:
+
+- unauthenticated access
+- unauthorized role access
+- IDOR
+- SQL injection
+- XSS
+- CSRF-sensitive actions
+- sensitive data exposure
+- token/session expiration
+- permission escalation
+- direct URL access
+
+---
+
+## Accessibility
+
+Cover when applicable:
+
+- keyboard navigation
+- focus order
+- visible focus indicator
+- screen reader labels
+- error message association
+- color contrast
+- modal focus trap
+- accessible table headers
+- accessible form labels
+
+---
+
+# Quality Checklist Before Finalizing
+
+Before returning test cases, verify:
+
+- Every test case has a clear title.
+- Every title follows `Verify [outcome] when [condition]`.
+- Every case has preconditions.
+- Every case has atomic steps.
+- Every step has an observable expected result.
+- Test data is explicit and safe.
+- Positive, negative, and edge cases are included.
+- Smoke tests are included.
+- Priority and severity are assigned.
+- Behavior is Positive or Negative.
+- Suite hierarchy is consistent.
+- Test cases are independent.
+- Requirement traceability is included when possible.
+- No real credentials or production data are included.
+- Count meets minimum target for the feature type.
+- Missing assumptions are documented.
+
+---
+
+# Completion Summary
+
+After generating test cases, include:
+
+```text
+Generated N test cases across M suites.
+
+Coverage Summary:
+- Smoke: X
+- Happy Path: X
+- Negative: X
+- Edge: X
+- Security: X
+- Integration: X
+- Accessibility: X
+- Regression: X
+
+Highest Priority:
+- [area 1]
+- [area 2]
+- [area 3]
+
+Assumptions:
+- [assumption 1]
+- [assumption 2]
+
+Gaps or Clarifications:
+- [gap 1]
+- [gap 2]
+```
+
+If the user asked for Qase upload and tools are available, include upload results.
+
+If upload was not possible, clearly state that the output is Qase-ready but not uploaded.
+
+---
+
+# Final Instruction
+
+Produce test cases that are immediately executable.
+
+Do not provide shallow scenario names only unless the user explicitly requests high-level scenarios.
+
+Prefer fewer high-quality complete cases over many vague cases, but never below the minimum coverage target unless the requirements are genuinely too small or incomplete.

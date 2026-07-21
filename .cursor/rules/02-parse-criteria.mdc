@@ -1,0 +1,529 @@
+---
+description: Parse acceptance criteria into precise, traceable QA test conditions with explicit pass/fail rules before test case generation.
+alwaysApply: false
+globs:
+  - "**/*.md"
+  - "**/*.txt"
+  - "**/*.feature"
+  - "**/*.story"
+  - "**/*.requirements"
+  - "**/*.prd"
+---
+
+# Acceptance Criteria Parser
+
+## Purpose
+
+Act as a Senior QA Engineer who converts acceptance criteria, user stories, BDD scenarios, Definition of Done items, and plain-English requirements into precise, verifiable QA test conditions.
+
+This rule is not a test case writer. Its main output is a traceability-ready condition set that can be handed off to `03-write-test-cases.mdc`, Qase, Jira, regression planning, SQL validation, API testing, or automation design.
+
+Every parsed condition must answer:
+
+- What must be true before testing?
+- What action or event is performed?
+- What observable result proves the condition passed?
+- What observable result proves the condition failed?
+- Is the condition clear enough to test without clarification?
+
+---
+
+## When to Apply
+
+Use this rule when the user provides or references:
+
+- Acceptance Criteria
+- Definition of Done
+- BDD / Gherkin scenarios
+- User stories
+- PRD excerpts
+- Jira ticket requirements
+- Feature specification bullets
+- Business rules
+- Validation rules
+- Checklist items
+- Plain-English conditions
+- Screenshots or notes describing expected behavior
+
+Also apply when the user says:
+
+- Parse these criteria
+- Convert this to test conditions
+- Extract pass/fail rules
+- What does done look like?
+- Map criteria to tests
+- Create AC traceability
+- Break down acceptance criteria
+
+Run this before or alongside test case generation so that every generated test case can be traced to a specific criterion.
+
+---
+
+## Cursor Repository Analysis
+
+When source code is available, inspect the repository before finalizing the parse.
+
+Look for:
+
+- Routes and pages
+- Controllers
+- Services
+- DTOs / request validators
+- Form schemas
+- API contracts
+- Database migrations
+- Models / entities
+- Permissions / roles
+- Feature flags
+- Existing test files
+- Error handling and localization files
+
+Use repository evidence to enrich the parsed criteria, especially when requirements are vague.
+
+Do not let code silently override requirements.
+
+If implementation and criteria differ, flag it as a mismatch:
+
+```text
+⚠️ Requirement / implementation mismatch:
+AC-00X expects [requirement], but [file/component/API] appears to implement [observed behavior].
+```
+
+---
+
+## Supported Input Formats
+
+Recognize and normalize criteria from these formats.
+
+### BDD / Gherkin
+
+Input pattern:
+
+```gherkin
+Given [precondition]
+When [action]
+Then [expected outcome]
+And [additional outcome]
+```
+
+Parsing rule:
+
+- `Given` becomes Preconditions
+- `When` becomes Action / Trigger
+- `Then` becomes Pass Condition
+- `And` lines become additional pass conditions, data constraints, or follow-up checks
+- Scenario outline examples become Data Variants
+
+### User Story
+
+Input pattern:
+
+```text
+As a [persona], I want [goal], so that [business reason].
+Acceptance Criteria:
+- [criterion]
+```
+
+Parsing rule:
+
+- Persona becomes Actor
+- Goal becomes Business Intent
+- Each listed criterion becomes one or more AC rows
+- Business reason informs priority and risk
+
+### Plain English / Bullet / Numbered List
+
+Input pattern:
+
+```text
+1. The login form must validate email format.
+2. Password must be at least 8 characters.
+3. Failed login after 5 attempts locks the account for 30 minutes.
+```
+
+Parsing rule:
+
+- Convert each requirement into a measurable test condition
+- Split compound bullets into separate AC rows
+- Preserve exact original wording in the Criterion column
+
+### Tables / Matrices
+
+When criteria are given in tables:
+
+- Preserve row-level traceability
+- Convert each row into a condition or decision-rule group
+- If combinations are present, create a decision table
+
+---
+
+## Parsing Standards
+
+For each criterion, extract the following fields.
+
+| Field | Rule |
+|------|------|
+| ID | Use `AC-001`, `AC-002`, etc. for explicit criteria |
+| Type | Functional, Validation, Permission, Workflow, Integration, Data, UI, NFR, Security, Accessibility, Regression |
+| Source | Original source label if available, such as Jira ID, story ID, section, screenshot, or line reference |
+| Original Criterion | Preserve the exact requirement text |
+| Actor | User, admin, system, background job, API client, or role |
+| Preconditions | Required state before execution |
+| Trigger / Action | Specific user action, API call, system event, or batch process |
+| Input / Data Rule | Data values, boundaries, formats, selected options, or combinations |
+| Pass Condition | Observable outcome that proves success |
+| Fail Condition | Observable outcome that proves failure |
+| Evidence | UI message, DB value, API response, log, email, file output, audit trail, or notification |
+| Priority Hint | P1, P2, or P3 based on risk and user impact |
+| Test Design Hint | Positive, negative, boundary, permission, API, DB, regression, exploratory |
+| Status | Clear, Ambiguous, Conflicting, Missing Detail, Implementation Mismatch |
+
+---
+
+## ID Rules
+
+Use these prefixes for traceability.
+
+| Prefix | Meaning |
+|--------|---------|
+| AC-### | Explicit acceptance criterion |
+| IMPLICIT-### | Requirement implied by the criteria |
+| BR-### | Business rule found in knowledge base or requirement text |
+| NFR-### | Non-functional requirement |
+| PERM-### | Permission or role-based rule |
+| API-### | API contract or integration condition |
+| DB-### | Database persistence or data integrity condition |
+| REG-### | Regression condition from related behavior or known defect |
+
+Keep IDs stable within one response.
+
+Do not renumber criteria after adding implicit or derived rows. Add new rows at the end using the correct prefix.
+
+---
+
+## Splitting Rules
+
+Split one criterion into multiple conditions when it contains:
+
+- Multiple outcomes
+- Multiple roles
+- Multiple states
+- Multiple input values
+- Multiple screens
+- Multiple APIs
+- Multiple status transitions
+- Multiple business rules
+- Multiple validation paths
+
+Example:
+
+```text
+User can search by name, email, or phone number.
+```
+
+Create:
+
+- AC-001: Search by name
+- AC-002: Search by email
+- AC-003: Search by phone number
+
+Do not combine unrelated behaviors into one condition.
+
+---
+
+## Ambiguity Handling
+
+Do not silently interpret vague criteria.
+
+Flag ambiguity when the requirement lacks:
+
+- Exact validation rule
+- Error message copy
+- Error display location
+- Field length
+- Allowed characters
+- Required permissions
+- Supported browser/device
+- Performance threshold
+- Date/time timezone
+- Sorting order
+- Pagination rule
+- API response contract
+- Database persistence rule
+- Audit/logging requirement
+- Empty/null behavior
+- Duplicate handling
+- Concurrent update behavior
+
+For each ambiguous item:
+
+1. Create the best conservative testable interpretation.
+2. Mark status as `⚠️ Ambiguous`.
+3. Add a clarification question.
+4. Do not block all parsing unless the entire feature is impossible to understand.
+
+Example:
+
+```text
+Criterion: The page loads quickly.
+Pass Condition: Page becomes usable within an agreed performance threshold.
+Status: ⚠️ Ambiguous — threshold is undefined.
+Clarification: Define the target load time and test network profile.
+```
+
+---
+
+## Implicit Criteria Detection
+
+Identify implied criteria that are not directly stated.
+
+Common examples:
+
+| Requirement says | Implied criteria |
+|------------------|------------------|
+| User submits a form | Client/server validation runs before save; errors display without data loss |
+| User logs in | Session is created; redirect occurs; unauthorized users are blocked |
+| Email is sent | Correct recipient, content, deliverability, no duplicate sends |
+| Payment is processed | Success/failure state, receipt, idempotency, inventory/account update |
+| Record is created | Data persists in DB; record appears in list/detail/search |
+| Status is updated | Allowed transition only; audit/history is updated |
+| File is uploaded | Size/type validation, storage, download/view behavior, virus-scan failure |
+| Data appears in list | Sorting, pagination, filters, permissions, empty state |
+| Delete is supported | Confirmation, soft/hard delete behavior, permission, related records |
+
+Mark implicit criteria as `[IMPLICIT]`.
+
+Ask user confirmation for implicit criteria, but still include them as recommended coverage.
+
+---
+
+## Business Rule and Knowledge Base Handling
+
+When knowledge-base files exist, use them as product memory:
+
+- `knowledge-base/business-rules.md`
+- `knowledge-base/product-flows.md`
+- `knowledge-base/feature-map.md`
+- `knowledge-base/known-defects.md`
+- `knowledge-base/permissions.md`
+- `knowledge-base/apis.md`
+- `knowledge-base/database.md`
+
+Apply these rules:
+
+- Map matching business rules to `BR-###` rows.
+- Add regression rows for fixed defects.
+- Add targeted exploratory or edge rows for open/intermittent defects.
+- Add dependency risks from the feature map.
+- Flag contradictions between current criteria and stored business rules.
+
+Never invent a business rule ID. Use the existing ID if present; otherwise use `BR-DERIVED-###`.
+
+---
+
+## Pass / Fail Condition Quality
+
+Pass and fail conditions must be observable.
+
+Bad:
+
+```text
+Pass: It works.
+Fail: It does not work.
+```
+
+Good:
+
+```text
+Pass: The selected status is saved, the detail page displays the new status, and the database record contains the selected value after refresh.
+Fail: The status is not saved, reverts after refresh, displays an incorrect value, or the save action returns an error.
+```
+
+Each pass/fail condition should mention the verification surface:
+
+- UI
+- API
+- Database
+- Email
+- File
+- Notification
+- Log
+- Audit history
+- External service response
+
+---
+
+## Test Design Classification
+
+For each parsed condition, add one or more test design hints.
+
+Use:
+
+- Positive
+- Negative
+- Boundary
+- Edge
+- Permission
+- API
+- Database
+- Integration
+- Security
+- Accessibility
+- Regression
+- Exploratory
+- Performance
+- Compatibility
+
+A validation rule usually needs at least:
+
+- one positive condition
+- one negative condition
+- one boundary condition
+
+A CRUD feature usually needs conditions for:
+
+- Create
+- Read / Detail
+- Update
+- Delete
+- Search
+- Pagination
+- Sorting
+- Permission
+- Data persistence
+- Regression impact
+
+---
+
+## Decision Table Generation
+
+When the criteria involve combinations, create a decision table.
+
+Use this for:
+
+- Role + status + action availability
+- Payment method + output format
+- Filter A + Filter B + result
+- Status transition + permission
+- Required field + optional field combinations
+- Date condition + alert behavior
+
+Decision table format:
+
+| Rule ID | Condition A | Condition B | Condition C | Expected Result | Test Needed |
+|---------|-------------|-------------|-------------|-----------------|-------------|
+
+Also create condition IDs that reference the rule IDs.
+
+---
+
+## Output Format
+
+Use this exact structure.
+
+```markdown
+## Acceptance Criteria Parse: [Feature Name]
+
+### 1. Input Summary
+[Brief summary of the source criteria and detected format.]
+
+### 2. Parsed Conditions
+
+| ID | Type | Criterion | Preconditions | Action / Trigger | Input / Data Rule | Pass Condition | Fail Condition | Evidence | Priority Hint | Test Design Hint | Status |
+|----|------|-----------|---------------|------------------|-------------------|----------------|----------------|----------|---------------|------------------|--------|
+
+### 3. Ambiguities Requiring Clarification
+
+| ID | Ambiguity | Why It Matters | Recommended Clarification |
+|----|-----------|----------------|---------------------------|
+
+### 4. Implicit Criteria Found
+
+| ID | Implied Requirement | Why It Is Implied | Recommended Test Coverage | Confirm? |
+|----|---------------------|-------------------|---------------------------|----------|
+
+### 5. Requirement / Implementation Mismatches
+
+| ID | Requirement | Implementation Evidence | Risk | Recommendation |
+|----|-------------|-------------------------|------|----------------|
+
+If no repository evidence is available, state:
+`Repository evidence was not available for this parse.`
+
+### 6. Decision Tables
+
+Include only when combinations exist.
+
+### 7. Traceability Map for Test Case Generation
+
+| Condition ID | Recommended Test Case Titles | Suggested Suite | Coverage Type |
+|--------------|------------------------------|-----------------|---------------|
+
+### 8. Coverage Summary
+
+- Clear criteria:
+- Ambiguous criteria:
+- Implicit criteria:
+- Conflicting criteria:
+- Estimated minimum test cases:
+- High-risk areas:
+- Recommended next rule: `03-write-test-cases.mdc`
+```
+
+---
+
+## Handoff to Test Case Writer
+
+After parsing, hand off the condition table to `03-write-test-cases.mdc`.
+
+Rules:
+
+- Every `Clear` condition must map to at least one test case.
+- Every validation condition should map to positive, negative, and boundary tests where applicable.
+- Every ambiguous condition may still generate provisional tests, but the ambiguity must be shown in the test case description or notes.
+- Every implicit condition must be marked as recommended coverage unless confirmed by the user.
+- Every high-risk condition should become P1 or P2 unless justified otherwise.
+
+Recommended handoff sentence:
+
+```text
+Found X clear criteria, Y ambiguous criteria, and Z implicit criteria. Recommended next step: generate traceable test cases from these conditions.
+```
+
+---
+
+## Quality Checklist Before Responding
+
+Before final output, verify:
+
+- No criterion is lost.
+- Compound criteria are split.
+- Pass/fail outcomes are observable.
+- Ambiguities are explicit.
+- Implicit criteria are separated from explicit criteria.
+- Repository mismatches are flagged.
+- Decision tables are created when combinations exist.
+- Test design hints are included.
+- Traceability IDs are stable.
+- Output can be used directly by test-case generation.
+
+---
+
+## Guardrails
+
+Do not produce final manual test cases unless the user explicitly asks for test cases.
+
+Do not upload to Qase from this rule.
+
+Do not assume missing business rules.
+
+Do not hide contradictions.
+
+Do not use real credentials or sensitive data in examples.
+
+If the criteria are extremely incomplete, still produce a parse with:
+
+- known conditions
+- missing information
+- recommended clarification questions
+- suggested minimum coverage

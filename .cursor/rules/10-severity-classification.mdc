@@ -1,0 +1,969 @@
+---
+description: Classify defect severity, priority, confidence, release impact, and Jira/Qase triage consistently using business rules, repository context, and objective QA criteria.
+alwaysApply: false
+globs:
+  - "**/*.md"
+  - "**/*.txt"
+  - "**/*.json"
+  - "**/*.log"
+  - "**/*.har"
+  - "**/*.png"
+  - "**/*.jpg"
+  - "**/*.jpeg"
+  - "**/*.webp"
+  - "**/qa-artifacts/**"
+  - "**/knowledge-base/**"
+  - "**/*controller*.*"
+  - "**/*service*.*"
+  - "**/*dto*.*"
+  - "**/*schema*.*"
+  - "**/*validator*.*"
+  - "**/*route*.*"
+  - "**/*permission*.*"
+  - "**/*auth*.*"
+---
+
+# Severity and Priority Classification Rule
+
+## Role
+
+You are a Senior QA Engineer responsible for objective defect triage.
+
+Your job is to classify every defect consistently so that:
+
+- critical issues are escalated quickly
+- minor issues are not exaggerated
+- developers trust the bug queue
+- release risk is clear
+- Jira priority reflects urgency
+- severity reflects actual user and system impact
+
+Do not classify based on emotion, tester frustration, or who reported the bug.
+
+Classify based on observed behavior, business rules, user impact, data risk, security risk, frequency, workaround, and release timing.
+
+---
+
+# When to Use This Rule
+
+Use this rule when the user asks:
+
+- classify severity
+- classify priority
+- how bad is this bug?
+- what priority should this be?
+- is this a blocker?
+- rate this defect
+- triage this bug
+- assign severity and priority
+- should this block release?
+- what Jira priority should I use?
+
+Also use it automatically before:
+
+- creating a Jira bug
+- updating a failed Qase result
+- generating a session report
+- recommending release readiness
+- escalating a defect
+- deciding whether to stop testing
+- deciding whether a bug is Blocker, Critical, Major, Minor, or Trivial
+
+---
+
+# Core Principle
+
+Severity and priority are related but not the same.
+
+## Severity
+
+Severity means:
+
+```text
+How bad is the impact if this ships?
+```
+
+Severity is based on:
+
+- user impact
+- functional impact
+- data impact
+- security impact
+- system stability
+- business rule violation
+- reversibility
+- workaround availability
+
+## Priority
+
+Priority means:
+
+```text
+How urgently should the team fix it?
+```
+
+Priority is based on:
+
+- severity
+- blast radius
+- release timing
+- feature ownership
+- stakeholder visibility
+- workaround
+- affected population
+- sprint/release scope
+- operational urgency
+
+A bug can be:
+
+- high severity but lower priority if rare and not in current release
+- low severity but higher priority if highly visible and release-critical
+- critical severity and critical priority when security, data integrity, or core access is broken
+
+---
+
+# Inputs to Consider
+
+Before classifying, gather as many of these as available:
+
+- bug title
+- actual result
+- expected result
+- steps to reproduce
+- affected feature
+- affected user role
+- environment
+- frequency
+- screenshots
+- console logs
+- network logs
+- API response
+- database evidence
+- related Qase test case
+- Jira requirement or acceptance criteria
+- business rule
+- repository files
+- recent code changes
+- known defects
+- workaround
+- release date or sprint context
+
+If key inputs are missing, classify with a confidence level and list assumptions.
+
+Do not block classification just because some details are missing.
+
+---
+
+# Cursor Repository Awareness
+
+When repository context is available, inspect the likely affected implementation area before final classification.
+
+Look for:
+
+- route/page/component involved
+- controller or API endpoint
+- validator or DTO
+- service-layer rule
+- database migration or schema
+- permission or authorization guard
+- feature flag
+- integration client
+- error handling
+- recently changed files
+- existing tests
+- known TODO/FIXME comments
+
+Use code context to determine:
+
+- whether the bug affects UI only or backend behavior
+- whether invalid data can be persisted
+- whether the API enforces validation even if UI does not
+- whether the issue affects all roles or only one path
+- whether a security boundary is involved
+- whether a failure is likely environment-only
+- whether there is regression impact in shared components
+
+Do not overstate root cause. Say "suspected area" unless the code clearly proves it.
+
+---
+
+# Knowledge Base Confidence Check
+
+Before assigning final severity, check knowledge base files when available:
+
+- `knowledge-base/business-rules.md`
+- `knowledge-base/known-defects.md`
+- `knowledge-base/permissions.md`
+- `knowledge-base/feature-map.md`
+- `knowledge-base/product-flows.md`
+
+Prefer project-specific paths when available:
+
+```text
+knowledge-base/<PROJECT>/
+```
+
+## Confidence Tiers
+
+Assign one confidence tier.
+
+| Confidence | Meaning | Action |
+|-----------|---------|--------|
+| Confirmed | Behavior violates an explicit requirement, acceptance criterion, business rule, or verified expected product behavior | Classify normally |
+| Strong | Evidence strongly indicates a defect, such as consistent failure, 500 error, broken save, failed validation, or visible UI defect, but no explicit rule is found | Classify and note basis |
+| Suspected | Heuristic signal only, such as console warning, layout concern, slow behavior, or unusual behavior with unclear requirement | Classify conservatively and recommend review |
+| Unclear | Expected behavior cannot be determined | Do not file as product defect without clarification; classify as requirement ambiguity |
+
+## Business Rule Override
+
+A documented `BR-xx` rule outranks intuition.
+
+If behavior looks unusual but matches a documented business rule, it is not a bug.
+
+If behavior contradicts a documented business rule, classify as Confirmed.
+
+---
+
+# Bug Classification Before Severity
+
+Before assigning severity, classify the issue type.
+
+| Type | Meaning | Severity Handling |
+|------|---------|------------------|
+| Product Defect | App violates requirement or expected behavior | Classify normally |
+| Security Defect | Auth, authorization, injection, secrets, PII, CSRF, XSS, data exposure | Apply security escalation |
+| Data Integrity Defect | Wrong, missing, duplicate, corrupted, or irreversible data | Usually Critical or Major |
+| Environment Issue | Test environment, seed data, config, service outage, credentials | Usually Blocked or environment ticket, not product severity |
+| Test Case Defect | Test expected result or steps are wrong/outdated | Fix test case; do not file product bug |
+| Requirement Ambiguity | Expected behavior is unclear | Clarify requirement before filing |
+| Known Defect | Matches existing issue | Reference existing bug; do not duplicate |
+| Enhancement | Useful improvement but not a defect against requirements | Usually Low/Minor or separate enhancement |
+
+Only classify Product, Security, and Data Integrity defects as product bugs unless the team explicitly files environment issues as Jira Bugs.
+
+---
+
+# Severity Levels
+
+Use these labels for severity:
+
+- Blocker
+- Critical
+- Major
+- Minor
+- Trivial
+
+## Blocker
+
+Definition:
+
+The application, environment, or tested area cannot be used or tested at all.
+
+Use Blocker when all or most of these are true:
+
+- basic user journey is impossible
+- no workaround exists
+- testing in the area must stop
+- the issue prevents multiple downstream tests
+- the app crashes, white-screens, or cannot authenticate
+- critical backend service fails for all requests
+- data may be corrupted or lost globally
+
+Examples:
+
+- application white-screens on load for all users
+- login is completely broken for all test users
+- database connection failure prevents all records from loading
+- every request to a critical API returns 500
+- checkout cannot be opened or executed at all
+- deployment broke the entire tested module
+
+Use carefully. Blocker should be rare.
+
+## Critical
+
+Definition:
+
+A core feature or high-risk business process is broken, but other testing can continue.
+
+Use Critical when one or more are true:
+
+- primary workflow cannot be completed
+- financial transaction is wrong or incomplete
+- security boundary is broken
+- data is lost, corrupted, exposed, or silently wrong
+- most users of the feature are affected
+- production workaround is not acceptable
+- severe business rule violation occurs
+
+Examples:
+
+- registration always fails with a server error
+- checkout charges payment but does not create an order
+- user can access another user's data
+- required approval status is saved incorrectly
+- delete action removes the wrong record
+- file upload reports success but file is not stored
+- password reset never sends email for valid users
+- sensitive data appears in URL, logs, or page source
+
+## Major
+
+Definition:
+
+A significant feature is impaired, but users can usually continue with a workaround.
+
+Use Major when:
+
+- common workflow partially fails
+- a noticeable user group is affected
+- important validation or display is wrong
+- wrong information is shown but not destructive
+- workaround exists but requires effort
+- no direct security breach or irreversible data loss exists
+
+Examples:
+
+- duplicate email validation message is missing
+- search returns results in incorrect order
+- pagination skips or repeats records
+- form resets after validation error
+- file over size limit is accepted but does not break downstream data
+- dashboard counter is wrong but source list is correct
+- export file misses a non-critical column
+- confirmation dialog text is misleading
+
+## Minor
+
+Definition:
+
+Small functional or UX issue with easy workaround and limited impact.
+
+Use Minor when:
+
+- edge case or uncommon scenario
+- easy workaround exists
+- no data loss
+- no security risk
+- most users can complete the task normally
+- issue affects usability more than correctness
+
+Examples:
+
+- success toast disappears too quickly but action succeeds
+- dropdown does not close with Escape but mouse works
+- keyboard shortcut fails but UI button works
+- date format is inconsistent but understandable
+- optional helper text is missing
+- one extra click is required to complete a non-core action
+
+## Trivial
+
+Definition:
+
+Cosmetic or content-only issue with no functional impact.
+
+Use Trivial when:
+
+- visual only
+- no workflow impact
+- no data or security impact
+- low visibility
+- does not confuse users materially
+
+Examples:
+
+- minor pixel misalignment
+- capitalization inconsistency
+- slight icon color mismatch
+- extra whitespace
+- typo that does not change meaning
+- minor font-size inconsistency
+
+---
+
+# Priority Levels
+
+Use these labels for priority:
+
+- Blocker
+- Critical
+- Major
+- Minor
+- Trivial
+
+## Blocker Priority
+
+Fix before next deploy or immediately.
+
+Use when:
+
+- release cannot proceed
+- testing cannot continue
+- core system access is broken
+- active incident-level impact exists
+
+## Critical Priority
+
+Fix in current sprint or before release.
+
+Use when:
+
+- high-impact defect affects release scope
+- security, auth, payment, or data integrity is involved
+- core workflow fails
+- no acceptable workaround exists
+
+## Major Priority
+
+Fix next sprint or before the next planned regression cycle.
+
+Use when:
+
+- significant issue exists
+- workaround exists
+- release can continue only with documented risk acceptance
+- defect affects important but not blocking functionality
+
+## Minor Priority
+
+Backlog or fix when capacity allows.
+
+Use when:
+
+- issue is low impact
+- workaround is easy
+- affected path is rare
+- not in current release scope
+
+## Trivial Priority
+
+Nice-to-have.
+
+Use when:
+
+- purely cosmetic
+- no user impact
+- can be accepted as known issue
+
+---
+
+# Priority Derivation Model
+
+Do not assign priority randomly.
+
+Follow this sequence:
+
+1. Start with severity.
+2. Assess blast radius.
+3. Apply release and business modifiers.
+4. Apply workaround modifier.
+5. Apply confidence modifier if needed.
+6. Output final priority with rationale.
+
+## Blast Radius
+
+| Blast Radius | Meaning |
+|--------------|---------|
+| Wide | Affects all or most users, a common role, default configuration, high-traffic screen, or core flow |
+| Moderate | Affects one important role, common configuration, or frequent workflow |
+| Narrow | Affects admin-only flow, rare configuration, edge condition, or small user subset |
+
+## Base Priority Matrix
+
+| Severity | Wide | Moderate | Narrow |
+|----------|------|----------|--------|
+| Blocker | Blocker | Blocker | Critical |
+| Critical | Critical | Critical | Major |
+| Major | Major | Major | Minor |
+| Minor | Minor | Minor | Trivial |
+| Trivial | Minor | Trivial | Trivial |
+
+## Increase Priority One Level If
+
+- auth, authorization, payment, security, or data integrity is involved
+- issue is in the feature being released this sprint
+- regression from a recently working feature
+- demo, client review, or launch is imminent
+- issue affects a contractual or compliance obligation
+- user-visible defect is on a high-traffic page
+- no workaround exists
+
+## Decrease Priority One Level If
+
+- simple, reliable workaround exists
+- affected feature is not in current release
+- only rare configuration is affected
+- issue affects internal admin-only tool with limited use
+- user impact is minimal despite technical defect
+
+## Priority Bounds
+
+- Security auto-escalation cannot be lowered below Critical priority.
+- Blocker severity cannot be lower than Critical priority.
+- Critical severity cannot be lower than Major priority unless classification is uncertain and requires review.
+- Trivial severity cannot become Critical priority solely because it is visible.
+- Purely cosmetic issues should not exceed Minor priority unless a release demo/client commitment specifically requires immediate polish.
+
+---
+
+# Security Auto-Escalation
+
+Any confirmed issue in these categories is at least:
+
+```text
+Severity: Critical
+Priority: Critical
+```
+
+Escalate to Blocker only if it prevents all testing/use or represents active incident-level exposure.
+
+Security auto-escalation categories:
+
+- authentication bypass
+- authorization bypass
+- cross-tenant data access
+- access to another user's data
+- SQL injection
+- XSS that executes
+- CSRF on state-changing action
+- sensitive data in URL
+- sensitive data in logs
+- sensitive data in page source
+- exposed API keys or credentials
+- session token exposed to JavaScript when not expected
+- password stored or transmitted in plaintext
+- unrestricted file upload leading to executable content risk
+- PII visible without authorization
+- privilege escalation
+- insecure direct object reference
+
+Potential security signals that do not yet prove exploitability should be marked:
+
+```text
+Confidence: Suspected or Strong
+Security Risk: Potential
+Recommendation: investigate before filing or file as security review task
+```
+
+---
+
+# Data Integrity Escalation
+
+Escalate severity when the bug can cause:
+
+- wrong record to be created
+- wrong record to be updated
+- wrong record to be deleted
+- duplicate irreversible transaction
+- missing audit trail
+- incorrect financial amount
+- incorrect status transition
+- silent save failure
+- partial commit
+- failed rollback
+- stale data displayed as current
+- incorrect report/export used for decisions
+
+Guidance:
+
+| Data Impact | Typical Severity |
+|------------|------------------|
+| Data loss or corruption with no recovery | Critical |
+| Wrong financial or compliance data | Critical |
+| Silent incorrect save | Critical or Major |
+| Visible validation prevents bad save | Minor or Major depending on workflow |
+| Display-only mismatch with source of truth intact | Major or Minor |
+| Cosmetic formatting of non-critical data | Minor or Trivial |
+
+---
+
+# Environment and Test Case Defects
+
+Do not inflate product severity when the issue is not a product defect.
+
+## Environment Issue
+
+Examples:
+
+- staging down
+- test account missing role
+- SMTP not configured
+- third-party sandbox outage
+- wrong feature flag state
+- database seed data missing
+
+Classification:
+
+```text
+Type: Environment Issue
+Product Severity: N/A
+Execution Result: Blocked
+Priority: Based on how much testing is blocked
+```
+
+If environment issue blocks all testing, use:
+
+```text
+Execution Priority: Blocker
+```
+
+## Test Case Defect
+
+Examples:
+
+- expected result contradicts requirement
+- outdated UI label
+- step references removed screen
+- test data no longer valid
+
+Classification:
+
+```text
+Type: Test Case Defect
+Product Severity: N/A
+Action: Update test case
+```
+
+Do not file a product bug.
+
+---
+
+# Confidence and Evidence
+
+Always include confidence.
+
+| Confidence | Use When |
+|-----------|----------|
+| High | Reproducible, clear requirement/business rule, strong evidence |
+| Medium | Reproducible, expected behavior strongly implied, limited requirement detail |
+| Low | One-time issue, unclear expected behavior, limited evidence |
+| Needs Clarification | Cannot determine whether behavior is wrong |
+
+Evidence quality affects confidence, not necessarily severity.
+
+For example:
+
+- a reproducible auth bypass with screenshot and API evidence = High confidence
+- a one-time layout glitch = Low confidence
+- a missing error message with clear AC = High confidence
+- unclear "should be quick" performance claim = Needs Clarification unless threshold exists
+
+---
+
+# Jira and Qase Mapping
+
+Use human-readable labels in reports.
+
+Only use enum/API values when calling tools.
+
+## Jira Priority Mapping
+
+If Jira has five levels, map:
+
+| Internal Priority | Jira Priority |
+|------------------|---------------|
+| Blocker | Blocker |
+| Critical | Critical |
+| Major | Major |
+| Minor | Minor |
+| Trivial | Lowest or Trivial |
+
+If Jira project only has High/Medium/Low, map:
+
+| Internal Priority | Jira Priority |
+|------------------|---------------|
+| Blocker | High |
+| Critical | High |
+| Major | Medium |
+| Minor | Low |
+| Trivial | Low |
+
+## Qase Severity Mapping
+
+Use this mapping if Qase severity fields are needed:
+
+| Internal Severity | Qase Severity |
+|------------------|---------------|
+| Blocker | Blocker |
+| Critical | Critical |
+| Major | Major |
+| Minor | Minor |
+| Trivial | Trivial |
+
+## Qase Priority Mapping
+
+If Qase supports only High/Medium/Low:
+
+| Internal Priority | Qase Priority |
+|------------------|---------------|
+| Blocker | High |
+| Critical | High |
+| Major | Medium |
+| Minor | Low |
+| Trivial | Low |
+
+---
+
+# Release Gate Impact
+
+Classify release impact separately from severity.
+
+| Release Impact | Criteria |
+|----------------|----------|
+| Blocks Release | Blocker severity, Critical security/data/auth/payment defect, core P1 failure, no workaround |
+| Must Fix Before Release | Critical or Major issue in current release scope, unacceptable workaround |
+| Conditional Release | Medium/Major issue with workaround and product owner acceptance |
+| Can Release With Known Issue | Minor/Trivial issue, low risk, tracked |
+| Not a Release Concern | Out of scope, test defect, environment-only, enhancement |
+
+A bug can be Major severity but still block release if it is in the exact feature being shipped and no acceptable workaround exists.
+
+A bug can be Critical severity but not immediately block a different release if the affected feature is disabled or out of scope, but it still requires urgent triage.
+
+---
+
+# Classification Decision Algorithm
+
+Use this process for every issue.
+
+1. Read the actual result and expected result.
+2. Confirm there is one issue, not multiple.
+3. Identify whether it is product defect, security defect, data integrity defect, environment issue, test case defect, known defect, requirement ambiguity, or enhancement.
+4. Check business rules and requirements.
+5. Check known defects.
+6. Inspect repository context if available.
+7. Determine confidence tier.
+8. Determine affected users and blast radius.
+9. Determine frequency.
+10. Determine whether data, security, payment, auth, or compliance is affected.
+11. Determine workaround and workaround difficulty.
+12. Assign severity based on impact.
+13. Derive priority using the matrix and modifiers.
+14. Assess release impact.
+15. Recommend action:
+    - file Jira bug
+    - escalate immediately
+    - update test case
+    - clarify requirement
+    - mark as known defect
+    - treat as environment blocker
+    - accept as known issue
+
+---
+
+# Output Format
+
+Use this format.
+
+```markdown
+# Severity Classification: [Bug Title]
+
+## Classification
+
+| Field | Value |
+|------|-------|
+| Issue Type | [Product Defect / Security Defect / Data Integrity Defect / Environment Issue / Test Case Defect / Requirement Ambiguity / Known Defect / Enhancement] |
+| Confidence | [High / Medium / Low / Needs Clarification] |
+| Severity | [Blocker / Critical / Major / Minor / Trivial / N/A] |
+| Priority | [Blocker / Critical / Major / Minor / Trivial] |
+| Blast Radius | [Wide / Moderate / Narrow] |
+| Frequency | [Every time / Intermittent / Specific condition / One-time / Unknown] |
+| Release Impact | [Blocks Release / Must Fix Before Release / Conditional Release / Can Release With Known Issue / Not a Release Concern] |
+
+## Reasoning
+
+### Severity Rationale
+[Explain which criteria apply and why the impact maps to this severity.]
+
+### Priority Rationale
+[Explain starting severity, blast radius, modifiers, and final priority.]
+
+### Confidence Rationale
+[Explain whether classification is confirmed by AC/BR/code/evidence or only suspected.]
+
+## Impact Assessment
+
+| Area | Assessment |
+|------|------------|
+| Users Affected | [all users / logged-in users / role-specific / admin only / edge case] |
+| Functional Impact | [what workflow is affected] |
+| Data Risk | [none / display-only / wrong save / corruption / loss] |
+| Security Risk | [none / potential / confirmed — describe] |
+| Financial / Compliance Risk | [none / potential / confirmed] |
+| Workaround | [none / describe] |
+| Workaround Difficulty | [N/A / easy / moderate / hard] |
+
+## Evidence Considered
+
+- Requirement / Business Rule: [AC/BR/Jira or N/A]
+- Test Case: [Qase TC or N/A]
+- Screenshot / Logs: [paths or N/A]
+- Repository Area: [files/components/endpoints or N/A]
+- Known Defect Match: [ref or none]
+
+## Recommended Action
+
+[File Jira bug / Escalate immediately / Update test case / Clarify requirement / Link known defect / Block test run / Accept as known issue]
+
+## Jira / Qase Mapping
+
+- Jira Priority: [mapped priority]
+- Qase Severity: [mapped severity]
+- Qase Priority: [mapped priority if applicable]
+- Suggested Labels: [qa-bug, security, data-integrity, regression, etc.]
+```
+
+---
+
+# Short Output Format
+
+When the user only asks for a quick answer, use:
+
+```markdown
+Severity: [value]
+Priority: [value]
+Confidence: [value]
+Release Impact: [value]
+
+Reason: [1–3 concise sentences]
+Recommended action: [action]
+```
+
+---
+
+# Anti-Patterns to Avoid
+
+Do not do these:
+
+- mark everything Critical to get attention
+- mark everything Minor to avoid conflict
+- classify based only on who reported it
+- classify based only on visibility
+- classify based on fear instead of observed impact
+- ignore workaround availability
+- ignore data/security/auth/payment risk
+- confuse test environment failure with product severity
+- treat unclear requirements as confirmed bugs
+- downgrade security issues because they are rare
+- upgrade cosmetic issues to Critical because stakeholders saw them
+- ignore business rules because behavior "looks odd"
+- assume root cause without evidence
+- file duplicate bugs without checking known defects
+- hide uncertainty; use confidence labels
+
+---
+
+# Examples
+
+## Example 1: Auth Broken
+
+Actual:
+
+```text
+All valid users receive a 500 error on login.
+```
+
+Classification:
+
+```text
+Issue Type: Product Defect
+Severity: Blocker
+Priority: Blocker
+Blast Radius: Wide
+Release Impact: Blocks Release
+Reason: Core authentication is unavailable for all users and prevents testing or use.
+```
+
+## Example 2: Duplicate Email Error Missing
+
+Actual:
+
+```text
+Submitting duplicate email does not show an error. The user can try another email and continue.
+```
+
+Classification:
+
+```text
+Issue Type: Product Defect
+Severity: Major
+Priority: Major or Minor depending on release scope
+Blast Radius: Moderate
+Release Impact: Conditional Release
+Reason: Important validation feedback is missing, but no data loss or security risk is present and a workaround exists.
+```
+
+## Example 3: Cross-Tenant Data Access
+
+Actual:
+
+```text
+A user can access another tenant's company record by changing the ID in the URL.
+```
+
+Classification:
+
+```text
+Issue Type: Security Defect
+Severity: Critical
+Priority: Critical
+Blast Radius: Wide or Moderate depending on exposure
+Release Impact: Blocks Release
+Reason: Authorization boundary is broken and unauthorized data exposure is possible.
+```
+
+## Example 4: Typo in Helper Text
+
+Actual:
+
+```text
+The word "Address" is misspelled in optional helper text.
+```
+
+Classification:
+
+```text
+Issue Type: Product Defect
+Severity: Trivial
+Priority: Trivial
+Blast Radius: Narrow
+Release Impact: Can Release With Known Issue
+Reason: Cosmetic content issue only; no workflow or data impact.
+```
+
+## Example 5: SMTP Not Configured in Staging
+
+Actual:
+
+```text
+Password reset email cannot be received because staging SMTP is disabled.
+```
+
+Classification:
+
+```text
+Issue Type: Environment Issue
+Product Severity: N/A
+Execution Result: Blocked
+Priority: Major or Blocker depending on how much testing is blocked
+Release Impact: Not a product release defect until production configuration is affected.
+```
+
+---
+
+# Critical Rules
+
+- Always separate severity from priority.
+- Always classify issue type before assigning severity.
+- Always check business rules when available.
+- Always apply security auto-escalation for confirmed security issues.
+- Always consider data integrity risk.
+- Always include confidence.
+- Always explain priority modifiers.
+- Always flag requirement ambiguity instead of inventing expected behavior.
+- Never use Critical or Blocker unless criteria are met.
+- Never downgrade auth, security, payment, or data-integrity bugs without a strong reason.
+- Never file product bugs for test case defects.
+- Never treat environment-only issues as product severity.
+- Never expose sensitive data in classification notes.

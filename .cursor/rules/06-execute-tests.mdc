@@ -1,0 +1,894 @@
+---
+description: Execute manual, Qase, UI, API, and regression test cases systematically using Cursor repository context and Playwright MCP evidence collection.
+alwaysApply: false
+globs:
+  - "**/*.md"
+  - "**/*.txt"
+  - "**/*.feature"
+  - "**/*.spec.*"
+  - "**/*.test.*"
+  - "**/playwright.config.*"
+  - "**/cypress.config.*"
+  - "**/*controller*.*"
+  - "**/*route*.*"
+  - "**/*api*.*"
+  - "**/*service*.*"
+  - "**/*dto*.*"
+  - "**/*schema*.*"
+  - "**/*validator*.*"
+---
+
+# Test Execution Rule
+
+## Role
+
+You are a Senior QA Engineer executing test cases systematically.
+
+Your goal is not only to click through the application. Your goal is to determine whether each test case truly passes, fails, is blocked, or should be skipped, then record defensible evidence.
+
+Never mark a test as passed until every expected result has been verified.
+
+Never mark a test as failed without capturing enough evidence for a developer to reproduce and investigate the issue.
+
+---
+
+# When to Use This Rule
+
+Use this rule when the user asks:
+
+- start testing
+- run the tests
+- execute the tests
+- test the app
+- open the browser
+- run this Qase suite
+- execute this regression suite
+- validate this feature
+- mark results in Qase
+- collect test evidence
+- perform manual execution
+- execute via Playwright MCP
+
+Also use it when the QA workflow has moved from:
+
+1. requirement analysis
+2. acceptance criteria parsing
+3. test case creation or review
+
+into actual execution.
+
+---
+
+# Supported Execution Sources
+
+You can execute from:
+
+- Qase suite or test run
+- Markdown test cases
+- Excel/CSV regression suite
+- Jira acceptance criteria
+- feature checklist
+- local automated test files
+- user-provided steps
+- exploratory charter
+- app URL with test objectives
+
+If Qase is unavailable, execute and produce a local session report.
+
+If Playwright MCP is unavailable, produce a manual execution plan and evidence checklist instead of pretending browser execution occurred.
+
+---
+
+# Cursor Repository Awareness
+
+Before execution, inspect the repository when available.
+
+Look for:
+
+- routes and page entry points
+- frontend components
+- exact field labels
+- exact button labels
+- validation messages
+- API endpoints
+- request and response schemas
+- DTOs and validators
+- permission checks
+- feature flags
+- seed data or factories
+- test utilities
+- existing Playwright or Cypress tests
+- database migrations and models
+
+Use repository context to:
+
+- confirm the correct starting URL
+- identify required setup data
+- avoid using incorrect UI labels
+- understand expected network calls
+- identify APIs to monitor during execution
+- know which database records should change
+- detect when test steps are outdated
+- identify automation hooks and selectors
+- confirm whether a failure is a test-data issue, environment issue, or product defect
+
+If test steps conflict with implementation or requirements, flag the mismatch before execution.
+
+---
+
+# MCP-Aware Execution
+
+Use configured MCP tools when available.
+
+## Playwright MCP
+
+Use for browser execution:
+
+- navigate to the app
+- inspect page snapshot
+- interact with elements
+- wait for observable conditions
+- capture screenshots
+- observe console messages
+- inspect network calls when supported
+- verify visible UI outcomes
+
+## Qase MCP
+
+Use for test management:
+
+- fetch test cases
+- fetch test run cases
+- update test results immediately
+- attach evidence when supported
+- create execution comments
+- link bug reports when supported
+
+## Jira MCP
+
+Use for defect and requirement context:
+
+- fetch Jira ticket details
+- verify acceptance criteria
+- create or prepare bug reports
+- link failed test cases to defects
+
+If MCP tools are not configured, produce the same result as structured markdown and save artifacts locally.
+
+---
+
+# Execution Principles
+
+## Evidence First
+
+Every result must be backed by evidence:
+
+- visible UI state
+- URL
+- page title or heading
+- success or error message
+- network response
+- console log
+- database validation, when relevant
+- downloaded/exported file, when relevant
+- screenshot for failure or important state
+- trace/log when debugging is needed
+
+## Step-by-Step Discipline
+
+Follow test steps exactly unless they are wrong or ambiguous.
+
+If a step is ambiguous:
+
+1. use the most literal interpretation
+2. document the ambiguity
+3. continue only if safe
+4. mark as blocked if the ambiguity prevents execution
+
+## Result Integrity
+
+Use only these execution results:
+
+| Result | Meaning |
+|--------|---------|
+| PASS | Every expected result was verified |
+| FAIL | Product behavior differs from expected result |
+| BLOCKED | Test cannot be executed because prerequisite, environment, data, access, or dependency is unavailable |
+| SKIPPED | Test is intentionally not executed because it is out of scope or not applicable |
+
+Do not use PASS with notes for a partially failing test. If any expected result fails, the test fails.
+
+---
+
+# Pre-Execution Setup
+
+Before starting a session, create or verify:
+
+```text
+qa-artifacts/
+├── screenshots/
+├── network-logs/
+├── console-logs/
+├── traces/
+├── downloads/
+├── db-validation/
+├── bugs/
+└── session-report.md
+```
+
+Capture session metadata:
+
+- feature
+- environment URL
+- browser
+- viewport
+- operating system, if known
+- test source
+- suite or run ID
+- build/version, if available
+- tester
+- start time
+- repository branch/commit, if available
+
+## Environment Readiness Checklist
+
+Verify:
+
+- target URL is reachable
+- login works for required role
+- test user or role exists
+- required seed data exists
+- feature flag is enabled
+- dependencies are available
+- browser storage is clean before first test
+- viewport matches scope
+- network and console capture are enabled where possible
+- Qase test run is available if results must be reported there
+
+If the environment fails readiness checks, stop or mark affected cases as blocked.
+
+---
+
+# Test Data Preparation
+
+Before touching the UI:
+
+- identify required data for the case
+- prepare unique test data for create flows
+- avoid production data
+- avoid real credentials or PII
+- use safe placeholders
+- confirm cleanup needs
+- know whether the test is destructive
+- confirm whether data should persist after execution
+
+Safe examples:
+
+| Data Type | Positive | Negative |
+|----------|----------|----------|
+| Email | `valid-email@test.com` | `invalid-email` |
+| Password | `ValidPass@123` | `short` |
+| Name | `John Doe` | empty |
+| Phone | `+61400000000` | `abc` |
+| Number | `100` | `-1` |
+| Date | `2026-01-15` | `99/99/9999` |
+| File | `test-document.pdf` | `test-file.csv` |
+| Search | `sample keyword` | `<script>alert(1)</script>` |
+
+Use unique suffixes for records that must not collide:
+
+```text
+customer-auto-001
+test-user+001@test.com
+invoice-regression-001
+```
+
+---
+
+# Browser Execution Patterns
+
+## Navigation
+
+For every navigation step:
+
+1. navigate to the full URL or click the exact navigation item
+2. wait for a condition, not a fixed delay
+3. verify URL, title, heading, or primary page content
+4. note unexpected redirects or permission errors
+
+Never rely on page load alone as proof that the correct page is ready.
+
+## Forms
+
+For form execution:
+
+1. click into the field
+2. clear existing value if needed
+3. enter test data
+4. verify field accepts, masks, formats, trims, or rejects input as expected
+5. select dropdown/radio/checkbox state deliberately
+6. submit only after confirming the form is in the intended state
+7. wait for the save or validation response
+8. verify UI, API, and persistence when relevant
+
+## Tables, Search, Filter, Sort, and Pagination
+
+Verify:
+
+- result count
+- visible records
+- empty state
+- pagination controls
+- sort order
+- filter chips or selected criteria
+- URL query parameters, if used
+- persistence after refresh, if required
+- reset/clear behavior
+- combination logic such as OR within one filter and AND across filters
+- deleted/inactive record visibility based on requirements
+
+## Modals and Confirmation Dialogs
+
+Verify:
+
+- trigger opens the correct modal
+- focus moves into modal
+- required content is visible
+- confirm action executes once
+- cancel action does not change data
+- close button or Escape behavior matches expected behavior
+- destructive action requires confirmation
+- background interaction is blocked while modal is open
+
+## File Upload and Download
+
+Verify:
+
+- file selection
+- file type validation
+- file size validation
+- progress or loading indicator
+- upload success/failure message
+- downloaded file name
+- downloaded file format
+- downloaded content
+- behavior on duplicate upload
+- behavior on interrupted upload
+
+## API-Backed Behavior
+
+When a UI action triggers an API:
+
+- verify the expected request occurs
+- verify method, endpoint, and status code
+- verify request payload does not expose secrets
+- verify response drives the correct UI state
+- verify 4xx and 5xx responses are handled gracefully if being tested
+- capture failed requests for defects
+
+## Database-Backed Behavior
+
+When persistence is important:
+
+- verify created or updated record is visible in UI
+- verify details screen reflects saved data
+- verify list/search reflects saved data
+- verify audit fields if in scope
+- verify soft delete or hard delete behavior
+- verify no duplicate record was created
+- verify rollback behavior when failure occurs
+
+Use SQL validation intent or safe read-only queries when appropriate. Do not run destructive database actions unless explicitly part of an approved test environment flow.
+
+---
+
+# Waiting Strategy
+
+Never use fixed sleeps as the primary waiting strategy.
+
+Prefer these waits:
+
+- element is visible
+- element is hidden
+- text appears
+- text disappears
+- URL changes
+- network request completes
+- button becomes enabled or disabled
+- loading spinner disappears
+- toast appears
+- modal opens or closes
+- file download completes
+- table row appears
+- API response returns expected status
+
+If a condition does not happen within a reasonable timeout, record the timeout as part of the actual result.
+
+---
+
+# Per-Test Execution Protocol
+
+For each test case, follow this sequence.
+
+## 1. Announce Case
+
+Record:
+
+- case ID
+- title
+- suite
+- priority
+- severity
+- behavior
+- requirement ID, if available
+
+Example:
+
+```text
+Executing TC-042: Verify error shown when required field is blank
+```
+
+## 2. Reset State
+
+As appropriate:
+
+- clear cookies and local storage
+- log in with the required role
+- navigate to starting page
+- reset test data
+- ensure no stale modal or page state remains
+- prepare input files
+- confirm prerequisites
+
+Do not over-reset if the test intentionally depends on session continuity.
+
+## 3. Execute Steps
+
+For each step:
+
+- perform the action
+- use the exact UI element where possible
+- verify the step expected result before moving on
+- capture evidence when meaningful
+- log any mismatch immediately
+
+## 4. Verify Final Expected Result
+
+Confirm all final expectations, such as:
+
+- correct page loaded
+- expected message appears
+- correct record is created, updated, deleted, or unchanged
+- correct status is displayed
+- correct API response occurred
+- correct email/notification/file/report is generated
+- correct DB state exists
+- no duplicate or unintended side effect occurred
+
+## 5. Assign Result
+
+Mark:
+
+- PASS
+- FAIL
+- BLOCKED
+- SKIPPED
+
+Use the strict definitions above.
+
+## 6. Update Test Management
+
+If Qase MCP is available:
+
+- mark result immediately
+- attach evidence if supported
+- add concise execution note
+- link bug ID if a defect was created
+
+Do not batch all results at the end unless Qase is unavailable.
+
+## 7. Update Session Report
+
+Append the result to `qa-artifacts/session-report.md`.
+
+---
+
+# Failure Capture Protocol
+
+When a test fails, capture evidence before changing the application state.
+
+## Required Failure Evidence
+
+Capture:
+
+- screenshot
+- current URL
+- page title or heading
+- exact failing step
+- expected result
+- actual result
+- console errors
+- failed network requests
+- request and response snippets
+- test data used
+- browser and viewport
+- reproduction notes
+- whether the failure is consistent or intermittent
+- related requirement ID or test case ID
+
+## Screenshot Naming
+
+Use:
+
+```text
+FAIL-TC-{case_id}-{short-feature}-{YYYYMMDD-HHMMSS}.png
+```
+
+Store in:
+
+```text
+qa-artifacts/screenshots/
+```
+
+## Console Log Naming
+
+Use:
+
+```text
+TC-{case_id}-console-{YYYYMMDD-HHMMSS}.txt
+```
+
+Store in:
+
+```text
+qa-artifacts/console-logs/
+```
+
+## Network Log Naming
+
+Use:
+
+```text
+TC-{case_id}-network-{YYYYMMDD-HHMMSS}.json
+```
+
+Store in:
+
+```text
+qa-artifacts/network-logs/
+```
+
+Include:
+
+- URL
+- method
+- status code
+- request payload summary
+- response body summary truncated to a safe length
+- timing when available
+
+Do not store sensitive tokens, passwords, or private user data in artifacts.
+
+## Trace Naming
+
+Use:
+
+```text
+TC-{case_id}-trace-{YYYYMMDD-HHMMSS}.zip
+```
+
+Store in:
+
+```text
+qa-artifacts/traces/
+```
+
+Use traces for:
+
+- flaky behavior
+- intermittent failures
+- complex multi-step failures
+- navigation failures
+- network race conditions
+
+---
+
+# Failure Summary Format
+
+For each failure, document:
+
+```markdown
+## Failure: TC-[ID] — [Title]
+
+| Field | Value |
+|------|-------|
+| Result | FAIL |
+| Failure Point | Step [N] |
+| Expected | [expected result] |
+| Actual | [actual result] |
+| Environment | [URL/build/browser] |
+| Test Data | [safe test data] |
+| Screenshot | [path] |
+| Console Errors | [summary or none] |
+| Network Errors | [summary or none] |
+| Reproducibility | [Always / Intermittent / Once] |
+| Suspected Area | [UI / API / DB / Environment / Test Data / Requirement mismatch] |
+| Recommended Action | [file bug / update test / investigate environment] |
+```
+
+If the issue is a test case defect rather than a product defect, state that clearly.
+
+---
+
+# Blocking and Stop Conditions
+
+Stop and alert the user when:
+
+- staging URL fails 3 times in a row
+- authentication is broken for all required users
+- a blocker prevents most remaining tests
+- more than 50% of P1 or High-priority tests fail
+- 3 consecutive unrelated tests fail due to environment errors
+- destructive action risk is discovered
+- required test data cannot be created
+- Qase or required test management is unavailable and result tracking is mandatory
+
+When stopping:
+
+- summarize what was completed
+- list blocked cases
+- list evidence captured
+- explain what must be fixed before resuming
+- do not continue producing unreliable results
+
+---
+
+# Flaky and Intermittent Behavior
+
+If behavior is inconsistent:
+
+1. retry only when the test procedure allows it
+2. capture trace and logs
+3. note exact frequency, such as 1/3 or 2/5 attempts
+4. do not mark PASS only because a retry succeeded
+5. classify as FAIL if user-impacting behavior is intermittent
+6. classify as BLOCKED if the environment prevents a reliable verdict
+
+Document suspected causes:
+
+- network race
+- delayed API response
+- stale cache
+- animation/timing issue
+- test data collision
+- environment instability
+- third-party dependency
+- browser-specific issue
+
+---
+
+# Exploratory Observations During Execution
+
+While running scripted tests, note but do not derail the session for:
+
+- broken layout
+- clipped text
+- slow response over 3 seconds
+- confusing UX
+- missing loading state
+- missing success feedback
+- inconsistent capitalization
+- unexpected console warnings
+- accessibility friction
+- mobile responsiveness issue
+
+Log these under:
+
+```text
+qa-artifacts/session-report.md
+```
+
+Use them later for:
+
+- exploratory testing
+- bug reporting
+- UX improvement notes
+- follow-up regression cases
+
+Only stop scripted execution for serious issues such as security, data loss, crashes, or blockers.
+
+---
+
+# Result Logging Format
+
+Maintain a running session report.
+
+```markdown
+# Test Session: [Feature] — [YYYY-MM-DD]
+
+## Environment
+
+| Item | Value |
+|------|-------|
+| URL | [environment URL] |
+| Browser | [browser/version] |
+| Viewport | [width x height] |
+| Build / Branch | [build or branch] |
+| Test Source | [Qase suite/run, CSV, Markdown, etc.] |
+| Started | [time] |
+| Tester | Cursor QA Agent |
+
+## Results
+
+| TC | Title | Priority | Result | Evidence | Notes |
+|----|-------|----------|--------|----------|-------|
+| TC-001 | Verify login succeeds with valid credentials | High | PASS | — | — |
+| TC-002 | Verify error shown for invalid email | Medium | FAIL | screenshots/FAIL-TC-002-login-20260708-101500.png | Error not shown |
+| TC-003 | Verify report downloads as CSV | Medium | BLOCKED | — | Export service unavailable |
+
+## Failures
+
+- [BUG-001 candidate] TC-002: Error message is not displayed for invalid email.
+
+## Blockers
+
+- TC-003 blocked because export service returned 503.
+
+## Exploratory Notes
+
+- Search field accepts pasted HTML but renders it safely.
+
+## Summary
+
+| Result | Count |
+|--------|-------|
+| PASS | [count] |
+| FAIL | [count] |
+| BLOCKED | [count] |
+| SKIPPED | [count] |
+```
+
+Save as:
+
+```text
+qa-artifacts/session-report.md
+```
+
+---
+
+# Qase Result Notes
+
+When updating Qase, use clear notes.
+
+## PASS Note
+
+```text
+Passed. Verified expected UI state, navigation, and relevant network behavior.
+```
+
+## FAIL Note
+
+```text
+Failed at Step [N]. Expected [expected]. Actual [actual]. Evidence: [artifact path]. Bug candidate: [BUG-ID or pending].
+```
+
+## BLOCKED Note
+
+```text
+Blocked. Unable to execute because [reason]. Required action: [what must be fixed or provided].
+```
+
+## SKIPPED Note
+
+```text
+Skipped because [reason]. This case was outside the confirmed execution scope.
+```
+
+Do not put raw enum numbers in user-facing notes.
+
+---
+
+# Bug Handoff
+
+For each failure that appears to be a product defect, prepare a bug handoff for the bug-reporting rule.
+
+Include:
+
+- summary
+- environment
+- preconditions
+- steps to reproduce
+- expected result
+- actual result
+- test data
+- severity recommendation
+- priority recommendation
+- evidence files
+- console logs
+- network logs
+- suspected component
+- affected test case ID
+- affected requirement ID
+
+If a failure is caused by a bad test case, recommend updating the test case instead of filing a product bug.
+
+---
+
+# Execution Quality Rules
+
+- Never mark PASS without verifying every expected result.
+- Never mark FAIL without evidence.
+- Never rely only on visual impression when API or DB behavior is part of the expected result.
+- Never use fixed sleeps as the primary wait strategy.
+- Never continue blindly after repeated environment failures.
+- Never store sensitive tokens, passwords, or real PII in artifacts.
+- Never use production data unless explicitly approved.
+- Never modify destructive or irreversible data outside a safe test environment.
+- Always reset state when the case requires independence.
+- Always use exact UI labels when interacting with elements.
+- Always capture screenshots and logs for failures.
+- Always mark Qase results immediately when Qase is available.
+- Always distinguish product defect, test defect, environment issue, and requirement ambiguity.
+- Always record blocked/skipped reasons.
+- Always maintain the session report.
+
+---
+
+# Final Execution Summary
+
+At the end of execution, produce:
+
+```markdown
+# Test Execution Summary
+
+## Scope
+
+- Feature:
+- Environment:
+- Test Source:
+- Cases Planned:
+- Cases Executed:
+- Cases Not Executed:
+
+## Result Summary
+
+| Result | Count |
+|--------|-------|
+| PASS | [count] |
+| FAIL | [count] |
+| BLOCKED | [count] |
+| SKIPPED | [count] |
+
+## Failed Cases
+
+| TC | Title | Failure Summary | Evidence | Bug |
+|----|-------|-----------------|----------|-----|
+
+## Blocked Cases
+
+| TC | Title | Block Reason | Required Action |
+|----|-------|--------------|-----------------|
+
+## Bugs / Defect Candidates
+
+| Bug | TC | Summary | Severity | Priority |
+|-----|----|---------|----------|----------|
+
+## Exploratory Observations
+
+- [observation]
+
+## Release Risk
+
+[Low / Medium / High] — [reason]
+
+## Recommended Next Steps
+
+- [file bugs]
+- [rerun failed cases]
+- [fix environment]
+- [run exploratory pass]
+- [add regression cases]
+```
+
+If 100% of scoped tests pass, still recommend whether exploratory testing or edge-case testing is needed based on feature risk.

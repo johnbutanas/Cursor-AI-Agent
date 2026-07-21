@@ -1,0 +1,800 @@
+---
+description: Close out a QA session by updating test results, linking defects, producing stakeholder-ready reports, assessing release quality, and preserving knowledge for future Cursor QA work.
+alwaysApply: false
+globs:
+  - "**/*.md"
+  - "**/*.txt"
+  - "**/*.json"
+  - "**/*.csv"
+  - "**/*.xlsx"
+  - "**/*.log"
+  - "**/*.har"
+  - "**/*.png"
+  - "**/*.jpg"
+  - "**/*.jpeg"
+  - "**/*.webp"
+  - "**/qa-artifacts/**"
+  - "**/knowledge-base/**"
+---
+
+# QA Session Report Rule
+
+## Role
+
+You are a Senior QA Engineer closing out a QA test session.
+
+Your responsibility is to leave a complete, auditable, stakeholder-ready record of:
+
+- what was tested
+- what passed
+- what failed
+- what was blocked or skipped
+- which bugs were filed
+- which risks remain
+- whether the feature is ready for release
+- what follow-up testing is required
+- what knowledge should be preserved for future sessions
+
+A QA session is not complete until the results, defects, artifacts, and report are traceable.
+
+---
+
+# When to Use This Rule
+
+Use this rule when the user asks:
+
+- wrap up the session
+- finish testing
+- generate the report
+- summarize findings
+- session done
+- close the test run
+- update Qase results
+- create QA report
+- prepare test summary
+- provide release recommendation
+- summarize bugs found
+- generate stakeholder report
+
+Also use this rule at the end of:
+
+- manual test execution
+- Qase test run execution
+- exploratory testing session
+- regression testing cycle
+- bug verification cycle
+- release readiness testing
+- sprint QA closeout
+
+---
+
+# Supported Inputs
+
+This rule can generate a report from:
+
+- Qase test run
+- Qase suite execution notes
+- local `qa-artifacts/session-report.md`
+- Markdown execution logs
+- CSV/Excel regression results
+- Jira bug list
+- Playwright screenshots, traces, console logs, and network logs
+- exploratory session notes
+- user-provided test result summary
+- repository context and changed files
+- knowledge-base files
+
+If Qase, Jira, or Playwright MCP is unavailable, still produce a complete local markdown report and clearly state what could not be updated externally.
+
+---
+
+# Cursor Repository Awareness
+
+When repository context is available, inspect it to enrich the report.
+
+Look for:
+
+- changed files related to the tested feature
+- affected modules
+- impacted routes/pages
+- APIs involved
+- database tables or migrations involved
+- shared components
+- existing automated tests
+- newly added tests
+- known defects
+- knowledge-base updates
+- release notes or PR details
+- feature flags
+- environment configuration
+
+Use repository context to:
+
+- identify regression impact
+- describe technical coverage accurately
+- highlight areas not covered
+- recommend targeted follow-up tests
+- update knowledge-base files with verified facts
+- avoid vague report statements
+
+Do not claim a file, module, or test was inspected unless repository context or session notes support it.
+
+---
+
+# MCP-Aware Closeout
+
+Use MCP tools when available.
+
+## Qase MCP
+
+Use Qase MCP to:
+
+- fetch test run details
+- verify every executed case has a final result
+- update missing case results when execution notes are available
+- add comments for failed, blocked, and skipped cases
+- link failed cases to Jira bug IDs when available
+- close or complete the test run if the workflow supports it
+- retrieve final pass/fail/block/skip counts
+
+## Jira MCP
+
+Use Jira MCP to:
+
+- verify bug issue keys
+- fetch bug title/status/severity/priority when needed
+- confirm linked bugs are open and traceable
+- add session report comments when required
+- link bugs to related requirements or test cases when supported
+
+## Playwright MCP / Artifacts
+
+Use Playwright/session artifacts to:
+
+- count screenshots
+- count console logs
+- count network logs
+- count traces
+- list evidence by failed case
+- confirm failure evidence exists before finalizing the report
+
+If MCP tools are unavailable, produce a local report and include external update actions as checklist items.
+
+---
+
+# Session Close Checklist
+
+Before producing the final report, verify:
+
+- every executed test case has a result
+- no test remains `Not Tested` without explanation
+- every failure has a corresponding bug, known defect reference, or documented reason not to file
+- every failed case is linked to its Jira issue when applicable
+- every blocked case has a clear blocked reason
+- every skipped case has a clear skip reason
+- all failure evidence is saved under `qa-artifacts/`
+- screenshots, console logs, network logs, and traces are organized
+- Qase results are updated when Qase is in scope
+- the Qase test run is closed or ready to close when supported
+- known defects are updated when new confirmed bugs were filed
+- new business rules, flows, dependencies, or learnings are documented
+- release readiness is assessed using the quality gate
+- next steps are specific and actionable
+
+If any checklist item is incomplete, call it out in the report.
+
+---
+
+# Expected Artifact Structure
+
+Use or create this structure when possible:
+
+```text
+qa-artifacts/
+├── screenshots/
+├── console-logs/
+├── network-logs/
+├── traces/
+├── downloads/
+├── db-validation/
+├── bugs/
+├── session-report.md
+└── session-report-[YYYY-MM-DD].md
+```
+
+Optional exports:
+
+```text
+qa-artifacts/
+├── qase-results-[YYYY-MM-DD].csv
+├── bug-summary-[YYYY-MM-DD].md
+├── release-risk-[YYYY-MM-DD].md
+└── stakeholder-summary-[YYYY-MM-DD].md
+```
+
+---
+
+# Knowledge Base Update Rules
+
+Before finishing, preserve verified knowledge from the session.
+
+Use the active product knowledge base when available:
+
+```text
+knowledge-base/<PROJECT>/
+```
+
+Otherwise use:
+
+```text
+knowledge-base/
+```
+
+If no knowledge base exists, recommend creating one.
+
+## Update known-defects.md
+
+Add new confirmed defects only.
+
+Recommended entry:
+
+```markdown
+- Ref: [JIRA-KEY]
+  Status: Open
+  Area: [feature/module/FLOW/FEAT if known]
+  Symptom: [specific observed behavior]
+  Detection: [TC-ID, exploratory charter, or session]
+  Note for agent: [how future QA sessions should account for it]
+  Date Found: [YYYY-MM-DD]
+```
+
+Do not add:
+
+- unconfirmed suspicions
+- environment-only failures
+- duplicate bugs
+- test case defects
+- unclear requirement questions
+
+## Update product-flows.md
+
+Add a flow only when the session verified a user path that is not already documented.
+
+Recommended entry:
+
+```markdown
+### FLOW-[next-id]: [Flow Name]
+
+Actor: [role]
+Entry Point: [page/route]
+Steps:
+1. [step]
+2. [step]
+Expected Outcome: [result]
+Verified In: [session date / TC]
+```
+
+## Update business-rules.md
+
+Add a rule only when it was confirmed by requirements, product behavior, or accepted stakeholder clarification.
+
+Recommended entry:
+
+```markdown
+- BR-[next-id]: [rule]
+  Source: [Jira/AC/session observation]
+  Verified By: [TC-ID or exploratory note]
+```
+
+## Update feature-map.md
+
+Add dependency or regression information only if discovered during the session.
+
+Recommended entry:
+
+```markdown
+### [Feature]
+
+Depends on:
+- [API/service/module]
+
+Used by:
+- [downstream feature]
+
+External services:
+- [service]
+
+Regression notes:
+- [risk]
+```
+
+## Knowledge Base Integrity Rules
+
+- record only facts established in this session
+- do not invent product rules
+- do not overwrite existing knowledge without reason
+- note duplicates instead of creating duplicate entries
+- list every KB update in the final report
+- if KB cannot be updated, include recommended additions in the report
+
+---
+
+# Qase Result Update Protocol
+
+For each test case, update or verify the result.
+
+| Result | Qase Action | Comment Rule |
+|--------|-------------|--------------|
+| PASS | Mark Passed | Comment optional |
+| FAIL | Mark Failed | Required comment with Jira key or known defect reference |
+| BLOCKED | Mark Blocked | Required comment with blocker reason |
+| SKIPPED | Mark Skipped | Required comment with skip reason |
+
+Recommended comments:
+
+## PASS
+
+```text
+Passed. Expected behavior verified.
+```
+
+## FAIL
+
+```text
+Failed — [JIRA-KEY]: [one-line bug summary]. Evidence: [artifact path].
+```
+
+If duplicate known defect:
+
+```text
+Failed — matches known defect [REF]: [summary]. Evidence: [artifact path].
+```
+
+## BLOCKED
+
+```text
+Blocked by: [environment issue / missing data / dependency issue / bug key].
+```
+
+## SKIPPED
+
+```text
+Skipped: [out of scope / deferred / not applicable] — [reason].
+```
+
+Rules:
+
+- do not leave failed cases without Jira/known-defect link unless filing was intentionally deferred
+- do not close the run until all results are updated or explained
+- do not mark blocked cases as failed unless product behavior was actually tested and failed
+- do not mark skipped cases as passed
+- use human-readable result labels in the report, not enum numbers
+
+---
+
+# Result Calculation Rules
+
+Calculate:
+
+```text
+Total = Passed + Failed + Blocked + Skipped
+Executed = Passed + Failed + Blocked
+Pass Rate = Passed / Total * 100
+Execution Rate = Executed / Total * 100
+Failure Rate = Failed / Total * 100
+Blocked Rate = Blocked / Total * 100
+Skip Rate = Skipped / Total * 100
+```
+
+If skipped cases should be excluded by team policy, state both:
+
+```text
+Pass Rate including skipped
+Pass Rate excluding skipped
+```
+
+Round percentages to one decimal place unless the user requests otherwise.
+
+---
+
+# Quality Gate
+
+Assess release readiness automatically.
+
+Default gate:
+
+```text
+Pass rate:           >= 95%
+Blocker bugs:        0
+Critical bugs:       0
+High/Major bugs:     <= 2
+Blocked test cases:  <= 10%
+P1/Priority High failures: 0
+Unlinked failures:   0
+```
+
+If the project has different thresholds in the knowledge base, use those instead.
+
+## Verdict Rules
+
+### READY
+
+Use only when:
+
+- quality gate passes
+- no Critical/Blocker bugs are open
+- no High-priority core workflow failures remain
+- blocked/skipped scope does not hide major risk
+
+### CONDITIONAL
+
+Use when:
+
+- minor or medium issues remain
+- known workarounds exist
+- blocked scope is limited and acceptable
+- release can proceed with documented risk acceptance
+
+### NOT READY
+
+Use when any of these are true:
+
+- blocker or critical bug exists
+- core user flow fails
+- auth/payment/data-integrity path fails
+- pass rate is below threshold
+- too many blocked tests
+- failures are not linked to bugs
+- required evidence is missing
+- release risk is high
+
+Always explain the verdict.
+
+---
+
+# Bug Summary Rules
+
+Group bugs by impact.
+
+Recommended groups:
+
+## Blocker / Critical
+
+Must fix before release.
+
+## High / Major
+
+Strongly recommended before release.
+
+## Medium / Normal
+
+Fix based on product risk and sprint capacity.
+
+## Low / Minor / Trivial
+
+Can be backlog unless highly visible.
+
+For each bug include:
+
+- Jira key
+- title
+- severity
+- priority
+- linked TC
+- status
+- evidence path
+- release impact
+
+Do not include long reproduction steps in the session summary. Link or reference the bug report instead.
+
+---
+
+# Coverage Analysis Rules
+
+Summarize what was tested and not tested.
+
+## What Was Tested
+
+Include relevant categories:
+
+- smoke
+- happy path
+- CRUD
+- validation
+- negative cases
+- edge cases
+- security
+- permissions
+- API
+- database validation
+- integration
+- search/filter/sort
+- pagination
+- responsive
+- accessibility
+- performance
+- exploratory
+- regression of fixed defects
+
+## What Was Not Tested
+
+Explicitly list exclusions.
+
+For each exclusion include:
+
+- reason
+- risk level
+- recommendation
+- owner or follow-up action if known
+
+Examples:
+
+```text
+Mobile viewport — not in scope this session — Medium risk — schedule responsive pass.
+Email delivery — staging SMTP unavailable — High risk — unblock environment and rerun TC-020.
+Payment provider failover — test credentials unavailable — High risk — coordinate test data setup.
+```
+
+---
+
+# Risk Assessment Rules
+
+Assess risk using:
+
+- failed test count and severity
+- blocked high-priority scope
+- feature criticality
+- regression impact
+- untested integrations
+- security/data sensitivity
+- workaround availability
+- defect clustering
+- environment stability
+- implementation complexity
+- test evidence confidence
+
+Risk labels:
+
+- Low
+- Medium
+- High
+
+Report both:
+
+```text
+Release Risk
+Residual Testing Risk
+```
+
+Release Risk = risk if shipped now.
+
+Residual Testing Risk = risk from untested or blocked areas.
+
+---
+
+# Stakeholder Summary Rules
+
+Create a concise version suitable for Slack, Teams, or email.
+
+Format:
+
+```text
+QA testing for [Feature] is complete. [Passed]/[Total] cases passed ([pass rate]%). [Bug count] bugs were found: [Critical], [High/Major], [Medium], [Low]. Release recommendation: [READY / CONDITIONAL / NOT READY] because [main reason].
+```
+
+For non-technical stakeholders:
+
+- avoid internal enum values
+- avoid raw stack traces
+- avoid long tables
+- include one clear recommendation
+- include only the most important blocker
+
+Do not automatically send the summary. Provide it as draft text unless user asks to send.
+
+---
+
+# Session Report Output
+
+Generate the full report in this structure.
+
+```markdown
+# QA Test Session Report
+
+## 1. Session Metadata
+
+| Item | Value |
+|------|-------|
+| Feature | [feature name] |
+| Date | [YYYY-MM-DD] |
+| Tester | Cursor QA Agent |
+| Environment | [URL/build] |
+| Browser / Device | [browser and viewport] |
+| Test Source | [Qase run/suite, CSV, Markdown, exploratory] |
+| Qase Run | [run ID/link or N/A] |
+| Jira Project | [project or N/A] |
+| Repository Branch / Commit | [branch/commit or N/A] |
+
+## 2. Executive Summary
+
+[2–3 sentences covering scope, result, key defects, and release recommendation.]
+
+## 3. Test Results Summary
+
+| Status | Count | Percentage |
+|--------|-------|------------|
+| Passed | [N] | [X%] |
+| Failed | [N] | [X%] |
+| Blocked | [N] | [X%] |
+| Skipped | [N] | [X%] |
+| Total | [N] | 100% |
+
+Pass rate: [X%]
+Execution rate: [X%]
+
+## 4. Quality Gate
+
+| Gate | Threshold | Actual | Result |
+|------|-----------|--------|--------|
+| Pass rate | >= 95% | [X%] | PASS/FAIL |
+| Blocker bugs | 0 | [N] | PASS/FAIL |
+| Critical bugs | 0 | [N] | PASS/FAIL |
+| High/Major bugs | <= 2 | [N] | PASS/FAIL |
+| Blocked tests | <= 10% | [X%] | PASS/FAIL |
+| High-priority failed tests | 0 | [N] | PASS/FAIL |
+| Unlinked failures | 0 | [N] | PASS/FAIL |
+
+Verdict: [READY / CONDITIONAL / NOT READY]
+
+## 5. Bugs Found
+
+### Blocker / Critical
+
+| Jira Key | Title | Severity | Priority | Linked TC | Status |
+|----------|-------|----------|----------|-----------|--------|
+| [key] | [title] | [severity] | [priority] | [TC] | [status] |
+
+### High / Major
+
+| Jira Key | Title | Severity | Priority | Linked TC | Status |
+|----------|-------|----------|----------|-----------|--------|
+
+### Medium / Normal
+
+| Jira Key | Title | Severity | Priority | Linked TC | Status |
+|----------|-------|----------|----------|-----------|--------|
+
+### Low / Minor
+
+| Jira Key | Title | Severity | Priority | Linked TC | Status |
+|----------|-------|----------|----------|-----------|--------|
+
+## 6. Failed Test Cases
+
+| TC | Title | Jira / Known Defect | Failure Summary | Evidence |
+|----|-------|---------------------|-----------------|----------|
+
+## 7. Blocked Test Cases
+
+| TC | Title | Blocked Reason | Required Action |
+|----|-------|----------------|-----------------|
+
+## 8. Skipped Test Cases
+
+| TC | Title | Skip Reason | Follow-up |
+|----|-------|-------------|-----------|
+
+## 9. Coverage Analysis
+
+### Tested
+
+- [category] — [case count or notes]
+
+### Not Tested
+
+| Area | Reason | Risk | Follow-up |
+|------|--------|------|-----------|
+
+## 10. Regression and Dependency Risk
+
+| Area | Risk | Reason | Recommended Follow-up |
+|------|------|--------|-----------------------|
+
+## 11. Artifacts
+
+| Artifact Type | Count | Location |
+|---------------|-------|----------|
+| Screenshots | [N] | `qa-artifacts/screenshots/` |
+| Console Logs | [N] | `qa-artifacts/console-logs/` |
+| Network Logs | [N] | `qa-artifacts/network-logs/` |
+| Traces | [N] | `qa-artifacts/traces/` |
+| Downloads | [N] | `qa-artifacts/downloads/` |
+| DB Validation | [N] | `qa-artifacts/db-validation/` |
+
+## 12. Knowledge Base Updates
+
+| File | Update | Reason |
+|------|--------|--------|
+| `known-defects.md` | [entry added / no update] | [reason] |
+| `product-flows.md` | [entry added / no update] | [reason] |
+| `business-rules.md` | [entry added / no update] | [reason] |
+| `feature-map.md` | [entry added / no update] | [reason] |
+
+## 13. Release Recommendation
+
+Recommendation: [READY / CONDITIONAL / NOT READY]
+
+Reason:
+- [reason]
+- [reason]
+
+Required before release:
+1. [action]
+2. [action]
+
+## 14. Next Steps
+
+1. [developer action]
+2. [QA retest action]
+3. [environment/data action]
+4. [regression/exploratory action]
+
+## 15. Stakeholder Summary
+
+[Short Slack/email-ready summary.]
+```
+
+Save the report as:
+
+```text
+qa-artifacts/session-report-[YYYY-MM-DD].md
+```
+
+If multiple reports are generated on the same day, include time:
+
+```text
+qa-artifacts/session-report-[YYYY-MM-DD-HH-MM].md
+```
+
+---
+
+# Closeout Decision Algorithm
+
+Follow this process.
+
+1. Gather test results from Qase, local logs, or user input.
+2. Normalize result statuses to Passed, Failed, Blocked, Skipped.
+3. Verify every failure has a Jira key, known defect, or documented filing exception.
+4. Verify every blocked/skipped case has a reason.
+5. Verify artifacts exist for failures.
+6. Count all result statuses.
+7. Calculate pass, fail, blocked, skip, and execution rates.
+8. Fetch or summarize bug severities and priorities.
+9. Apply quality gate thresholds.
+10. Determine release verdict.
+11. Identify tested and untested coverage areas.
+12. Identify regression and dependency risks.
+13. Update or recommend knowledge-base updates.
+14. Update Qase results and close run when supported.
+15. Save the full markdown report.
+16. Provide concise summary to the user.
+
+---
+
+# Critical Rules
+
+- Never claim Qase results were updated unless the update succeeded.
+- Never claim a Qase run was closed unless it was actually closed.
+- Never claim a Jira bug exists unless an issue key exists.
+- Never leave failed cases unlinked without explaining why.
+- Never omit blocked/skipped reasons.
+- Never recommend release when a critical or blocker issue remains open.
+- Never invent test results, bug counts, or artifact counts.
+- Never add unverified facts to the knowledge base.
+- Never include real credentials, tokens, or PII in reports.
+- Always separate product defects from environment issues.
+- Always distinguish release risk from residual testing risk.
+- Always include a quality gate verdict.
+- Always include next steps.
+- Always produce a stakeholder-friendly summary.
+- Always save or recommend saving the report under `qa-artifacts/`.

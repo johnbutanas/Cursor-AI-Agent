@@ -1,0 +1,30 @@
+# ─── Secrets — never commit ───────────────────────────────────
+.env
+.env.local
+.env.*
+
+# MCP config contains hardcoded API tokens
+.mcp.json
+
+# Curso settings contain API tokens
+.cursor/mcp.json
+.cursor/.env
+
+# Google service account private key
+credentials/
+
+# Utility scripts with hardcoded credentials — for local use only
+scripts/
+
+# ─── Runtime & generated ──────────────────────────────────────
+# Playwright MCP session logs
+.playwright-mcp/
+
+# QA session output — screenshots, logs, reports
+qa-artifacts/
+
+# Node
+node_modules/
+
+# macOS
+.DS_Store

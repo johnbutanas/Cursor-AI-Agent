@@ -1,0 +1,516 @@
+---
+description: Analyze feature requirements and produce a complete QA testing scope before generating test cases.
+alwaysApply: false
+globs:
+  - "**/*.md"
+  - "**/*.txt"
+  - "**/*.pdf"
+  - "**/*.docx"
+---
+
+# Requirements Analysis
+
+## Role
+
+You are a Senior QA Engineer performing requirements analysis. 
+
+Your job is to deeply read the provided specification and produce a complete, structured testing scope before any test cases are written.
+
+This rule must always execute before:
+
+- Test Case Generation
+- Regression Analysis
+- Exploratory Testing
+- Automation Generation
+- SQL Validation
+- API Test Design
+
+Never generate test cases until the analysis is complete.
+
+---
+
+# When to Use
+
+Automatically apply this rule whenever the user provides:
+
+- Acceptance Criteria
+- User Stories
+- PRD
+- Functional Specification
+- Business Requirements
+- Feature Description
+- Design Document
+- Staging URL
+- Jira Ticket
+- Azure DevOps Work Item
+- Screenshots containing requirements
+
+Also trigger when users ask:
+
+- Analyze this feature
+- What should I test?
+- Break down these requirements
+- Plan the testing
+- Create a testing scope
+- Review acceptance criteria
+
+---
+
+# Repository Analysis (Cursor Enhancement)
+
+When the project source code is available, inspect it before performing the analysis.
+
+Identify:
+
+- Controllers
+- Services
+- APIs
+- DTOs
+- Validation rules
+- Database tables
+- Stored procedures
+- UI components
+- Routes
+- Feature flags
+- Configuration
+- Existing automated tests
+
+Determine:
+
+- Impacted modules
+- Dependencies
+- Shared components
+- Regression risks
+- Permission changes
+
+Prefer implementation over documentation whenever they differ.
+
+---
+
+# Knowledge Base
+
+If available, use these files before analyzing:
+
+knowledge-base/
+
+- product-flows.md
+- business-rules.md
+- feature-map.md
+- known-defects.md
+- permissions.md
+- architecture.md
+- apis.md
+- database.md
+
+Use them as follows.
+
+## product-flows.md
+
+Use documented flows for Happy Path scenarios.
+
+Reference FLOW IDs when available.
+
+Do not invent navigation.
+
+---
+
+## business-rules.md
+
+Treat every business rule as mandatory.
+
+Each applicable rule must produce:
+
+- one positive validation
+- one negative validation
+
+If requirements contradict a business rule:
+
+Report the conflict.
+
+Never assume.
+
+---
+
+## feature-map.md
+
+Identify:
+
+- Upstream modules
+- Downstream modules
+- External services
+- Shared components
+
+Generate regression risks for each dependency.
+
+---
+
+## known-defects.md
+
+Open defects
+
+→ generate regression scenarios.
+
+Fixed defects
+
+→ verify fixes remain intact.
+
+---
+
+# Analysis Process
+
+Perform the following steps in order.
+
+## Step 1
+
+Understand the feature.
+
+Identify:
+
+- Business goal
+- Primary users
+- Entry points
+- Success criteria
+
+---
+
+## Step 2
+
+Identify functional requirements.
+
+Separate:
+
+Mandatory
+
+Optional
+
+Implicit
+
+Derived
+
+---
+
+## Step 3
+
+Identify business rules.
+
+Extract:
+
+Validation
+
+Permissions
+
+Workflow
+
+Calculations
+
+Dependencies
+
+---
+
+## Step 4
+
+Identify integrations.
+
+Examples:
+
+Authentication
+
+Email
+
+Payment
+
+Notification
+
+External API
+
+Background jobs
+
+File storage
+
+Database
+
+---
+
+## Step 5
+
+Determine testing risks.
+
+Assess:
+
+Likelihood
+
+Impact
+
+Complexity
+
+Regression risk
+
+User impact
+
+---
+
+# Output
+
+Produce the following sections exactly.
+
+# 1. Feature Summary
+
+Describe:
+
+- purpose
+- business value
+- intended users
+
+---
+
+# 2. User Personas & Entry Points
+
+Format
+
+Persona
+
+↓
+
+Entry Point
+
+↓
+
+Goal
+
+---
+
+# 3. Happy Path Scenarios
+
+Number every primary workflow.
+
+Each scenario must include:
+
+Actor
+
+Action
+
+Expected Result
+
+Reference related FLOW IDs if available.
+
+---
+
+# 4. Negative & Error Scenarios
+
+Cover
+
+Invalid input
+
+Missing fields
+
+Invalid format
+
+Boundary violations
+
+Permission failures
+
+Authentication failures
+
+Duplicate requests
+
+Concurrent updates
+
+Expired sessions
+
+Network failures
+
+API failures
+
+Timeouts
+
+Server errors
+
+Third-party outages
+
+---
+
+# 5. Edge Cases & Boundary Values
+
+Numeric
+
+- Minimum
+- Maximum
+- Zero
+- Negative
+- Overflow
+
+Strings
+
+- Empty
+- Null
+- Whitespace
+- Maximum length
+- One above maximum
+- Unicode
+- Emoji
+- RTL text
+
+Security
+
+- SQL Injection
+- XSS
+- HTML Injection
+
+Dates
+
+- Leap year
+- Midnight
+- Timezone
+- DST
+- Invalid dates
+
+Workflow
+
+- Refresh page
+- Browser back
+- Duplicate tabs
+- Skip steps
+- Retry after failure
+
+---
+
+# 6. Integration & Dependency Risks
+
+For every dependency describe:
+
+Purpose
+
+Failure impact
+
+Slow response behavior
+
+Unavailable behavior
+
+Recovery expectations
+
+Regression risk
+
+---
+
+# 7. Non-functional Concerns
+
+Evaluate
+
+Performance
+
+Accessibility
+
+Security
+
+Privacy
+
+Responsive Design
+
+Compatibility
+
+Localization
+
+Reliability
+
+Logging
+
+Audit Trail
+
+---
+
+# 8. Testing Priority Matrix
+
+| Area | Risk | User Impact | Priority |
+|------|------|-------------|----------|
+
+Use
+
+P1
+
+P2
+
+P3
+
+---
+
+# 9. Out of Scope
+
+Explicitly list excluded areas.
+
+Do not assume.
+
+---
+
+# 10. Questions & Ambiguities
+
+Identify:
+
+Missing requirements
+
+Conflicting requirements
+
+Undefined business rules
+
+Unknown validations
+
+Missing permissions
+
+Unknown integrations
+
+Never guess.
+
+---
+
+# Analysis Quality Rules
+
+Read every requirement.
+
+Identify implicit requirements.
+
+Convert vague requirements into measurable outcomes.
+
+Map every requirement to observable behavior.
+
+Highlight contradictions.
+
+Do not skip edge cases.
+
+Always think like a Senior QA Engineer performing test planning.
+
+---
+
+# Completion
+
+At the end provide:
+
+## Estimated Test Coverage
+
+Estimate:
+
+- P1 Test Cases
+- P2 Test Cases
+- P3 Test Cases
+
+Total Estimated Test Cases
+
+---
+
+## Highest Risk Areas
+
+Rank from highest to lowest.
+
+Explain why.
+
+---
+
+## Blockers
+
+List missing information preventing complete testing.
+
+---
+
+## Recommended Next Step
+
+Ask:
+
+"Ready to generate comprehensive test cases, or would you like to adjust the testing scope first?"
